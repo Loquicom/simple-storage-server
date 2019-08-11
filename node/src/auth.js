@@ -59,5 +59,4 @@ class Auth {
 }
 
 // Export
-let auth = new Auth();
-module.exports = auth;
+module.exports = new Auth();
