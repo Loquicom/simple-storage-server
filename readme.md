@@ -19,11 +19,10 @@ Les codes d'erreurs sont les suivants :
 - 01 : Requete invalide
 - 02 : Authentification incorrect
 - 03 : Token incorrect
-- 04 : Token expiré
 
 # Points d'éntrées 
 
-`GET /authorization`
+`GET /authentication`
 
 Indique si le serveur necessite un mot de passe pour accèder aux fichiers
 
@@ -31,7 +30,7 @@ Indique si le serveur necessite un mot de passe pour accèder aux fichiers
 // Reponse
 {
     success: true,
-    authorization: boolean
+    authentication: boolean
 }
 ```
 
@@ -138,11 +137,16 @@ Sauvegarde un fichier. Remplacer {file} par l'id du fichier à récupèrer. La v
 
 ------
 
-`GET /logout/{token}`
+`POST /logout`
 
-Déconnecte l'utilisateur. Remplacer {token} par le jeton de connexion à invalider
+Déconnecte l'utilisateur.
 
 ```json
+// Requete
+{
+    user: "string" // Username
+    token: "string"
+}
 // Reponse
 {
     success: true
