@@ -2,7 +2,7 @@ var token = require('token');
 var bcrypt = require('bcryptjs');
 
 // Parametrage token
-token.defaults.timeStep = 60 * 60 // Validité de une heure en seconde
+token.defaults.timeStep = 60 * 60 * 12 // Validité de 12 heures en seconde
 
 //Sync
 console.log('sync', bcrypt.compareSync('azerty', '$2y$10$IcQ32uKzQawg8g.kYuR/O.4y1kTSPHG0eZSMjACJKuFGa1VHM97Lu'));
