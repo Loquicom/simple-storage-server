@@ -2,22 +2,61 @@ var token = require('token');
 var bcrypt = require('bcryptjs');
 
 // Parametrage token
-token.defaults.timeStep = 60 * 60 * 12 // Validité de 12 heures en seconde
+token.defaults.timeStep = 60 * 60 * 12; // Validité de 12 heures en seconde
+token.defaults.secret = 'f5152bfd5894ae15103690d16ca09c38';
 
-//Sync
-console.log('sync', bcrypt.compareSync('azerty', '$2y$10$IcQ32uKzQawg8g.kYuR/O.4y1kTSPHG0eZSMjACJKuFGa1VHM97Lu'));
-var salt = bcrypt.genSaltSync(10);
-console.log('sync', bcrypt.hashSync("qwerty", salt));
+// Class auhtentification
+class Auth {
 
-//Async
-bcrypt.compare("azerty", '$2y$10$IcQ32uKzQawg8g.kYuR/O.4y1kTSPHG0eZSMjACJKuFGa1VHM97Lu', function(err, res) {
-    console.log('async', res);
-});
-bcrypt.compare("azerty", '$2y$10$IcQ32uKzQawg8g.kYuR/O.4y1kTSPHG0eZSMjACJKuFGa1VHM97Lu').then((res) => {
-    console.log('async promise', res)
-});
-bcrypt.genSalt(10, function(err, salt) {
-    bcrypt.hash("qwerty", salt, function(err, hash) {
-        console.log('async', hash);
-    });
-});
+    isActivated() {
+        return global.auth
+    }
+
+    generateToken(user) {
+        if(user === undefined || user === null) {
+            return false;
+        }
+        return token.generate(user);
+    }
+
+    invalidateToken(user, userToken) {
+        if(user === undefined || user === null || userToken === undefined || userToken === null) {
+            return false;
+        }
+        return token.invalidate(user, userToken);
+    }
+
+    passwordHash(password) {
+        const salt = bcrypt.genSaltSync(10);
+        return bcrypt.hashSync(password, salt);
+    }
+
+    passwordVerify(password, hash) {
+        return bcrypt.compareSync(password, hash)
+    }
+
+    verify(user, userToken) {
+        // Regarde si l'authentification est activée
+        if(!this.isActivated()) {
+            return true
+        }
+        // Verifie que l'utilisateur et le token n'est pas null
+        if(user === undefined || user === null || userToken === undefined || userToken === null) {
+            return false;
+        }
+        // Test la validitée du token
+        switch(token.verify(user, userToken)) {
+            case token.VALID:
+            case token.EXPIRING:
+                return true;
+            case token.INVALID:
+                return false;
+            default:
+                return false;
+        }
+    }
+
+}
+
+let auth = new Auth();
+module.exports = auth;
