@@ -1,0 +1,32 @@
+{
+    "name": "loquicompta_node_server",
+    "version": "0.0.1",
+    "description": "Server de stockage node js",
+    "homepage": "https://github.com/Loquicom/",
+    "author": {
+        "name": "Loquicom",
+        "email": "contact@loquicom.fr"
+    },
+    "keywords": [
+        "node",
+        "nodejs",
+        "server",
+        "loquicompta"
+    ],
+    "main": "main.js",
+    "private": true,
+    "scripts": {
+        "start": "node main.js",
+        "dev": "node main.js dev"
+    },
+    "engines": {
+        "node": "=10"
+    },
+    "dependencies": {
+        "bcryptjs": "^2.4.3",
+        "express": "^4.17.1",
+        "sqlite3": "^4.0.9",
+        "token": "^0.1.0",
+        "yargs": "^13.3.0"
+    }
+}
