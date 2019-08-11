@@ -1,5 +1,6 @@
 const fs = require('fs');
 const sqlite = require('sqlite3');
+const sql = require('./sql');
 
 // Indique si un fichier existe
 function fileExist(path) {
@@ -29,7 +30,16 @@ function Db() {
 Db.prototype.DB_PATH = './data/loquicompta.db';
 
 Db.prototype.createDb = function() {
-    
+    try {
+        this.db.run(sql.createUserTable);
+        this.db.run(sql.createFileTable);
+        this.db.run(sql.createUserFileTable);
+    } catch(err) {
+        if(global.verbose) {
+            console.error(err);
+        }
+        throw new Error('Error during initialization');
+    }
 }
 
 Db.prototype.getUser = function(username) {
@@ -59,3 +69,6 @@ Db.prototype.addFile = function(username, filename, data) {
 Db.prototype.updateFile = function(username, filename, data) {
 
 }
+
+// Export
+module.exports = new Db();
