@@ -23,7 +23,7 @@ const argv = require('yargs')
   .describe('auth', 'disables authentication')
   .argv;
 
-// Bibliotheque serveur web
+// Bibliotheques
 const express = require('express');
 
 // Creation variable globale
