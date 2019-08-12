@@ -1,7 +1,6 @@
 const fs = require('fs');
 const sqlite = require('sqlite3');
 const sql = require('./sql');
-const auth = require('./auth');
 
 // Indique si un fichier existe
 function fileExist(path) {
@@ -27,17 +26,56 @@ function Db() {
 Db.prototype.DB_PATH = './data/loquicompta.db';
 
 Db.prototype.createDb = function() {
-    this.db._execute(sql.createUserTable);
-    this.db._execute(sql.createFileTable);
-    this.db._execute(sql.createUserFileTable);
+    this._execute(sql.createUserTable);
+    this._execute(sql.createFileTable);
+    this._execute(sql.createUserFileTable);
+}
+
+Db.prototype.userExist = function(username) {
+    if(typeof username !== 'string') {
+        return false;
+    }
+    return new Promise((resolve, reject) => {
+        this.db.all(sql.userExist, username, (err, rows) => {
+            if(err) {
+                if(global.verbose) {
+                    console.error(err);
+                }
+                resolve(false);
+            } else {
+                resolve(rows[0].nb > 0);
+            }
+        });
+    });
 }
 
 Db.prototype.getUser = function(username) {
-
+    if(typeof username !== 'string') {
+        return false;
+    }
+    return new Promise((resolve, reject) => {
+        this.db.all(sql.getUser, username, (err, rows) => {
+            if(err) {
+                if(global.verbose) {
+                    console.error(err);
+                }
+                resolve(false);
+            } else {
+                resolve(rows[0]);
+            }
+        });
+    });
 }
 
 Db.prototype.addUser = function(username, passwordhash) {
-
+    if(typeof username !== 'string' && typeof passwordhash !== 'string') {
+        return false;
+    }
+    this.userExist(username).then((result) => {
+        if(!result) {
+            this._execute(sql.insertUser, [username, passwordhash]);
+        }
+    });
 }
 
 Db.prototype.listFile = function(username) {
@@ -60,9 +98,13 @@ Db.prototype.updateFile = function(username, filename, data) {
 
 }
 
-Db.prototype._execute = function(sql) {
+Db.prototype._execute = function(sql, params) {
     try {
-        this.db.run(sql);
+        if(params !== undefined && params !== null) {
+            this.db.run(sql, params);
+        } else {
+            this.db.run(sql);
+        }
     } catch(err) {
         if(global.verbose) {
             console.error(err);
