@@ -1,12 +1,13 @@
-var token = require('token');
-var bcrypt = require('bcryptjs');
-
-// Parametrage token
-token.defaults.timeStep = 60 * 60 * 12; // Validité de 12 heures en seconde
-token.defaults.secret = 'f5152bfd5894ae15103690d16ca09c38';
+const bcrypt = require('bcryptjs');
+const Token = require('./token');
 
 // Class auhtentification
 class Auth {
+
+    constructor() {
+        // Validité de 12 heures en seconde
+        this.token = new Token('f5152bfd5894ae15103690d16ca09c38', 60 * 60 * 12);
+    }
 
     isActivated() {
         return global.auth
@@ -16,14 +17,7 @@ class Auth {
         if(user === undefined || user === null) {
             return false;
         }
-        return token.generate(user);
-    }
-
-    invalidateToken(user, userToken) {
-        if(user === undefined || user === null || userToken === undefined || userToken === null) {
-            return false;
-        }
-        return token.invalidate(user, userToken);
+        return this.token.generate(user);
     }
 
     passwordHash(password) {
@@ -45,15 +39,7 @@ class Auth {
             return false;
         }
         // Test la validitée du token
-        switch(token.verify(user, userToken)) {
-            case token.VALID:
-            case token.EXPIRING:
-                return true;
-            case token.INVALID:
-                return false;
-            default:
-                return false;
-        }
+        return this.token.validate(userToken, user);
     }
 
 }
