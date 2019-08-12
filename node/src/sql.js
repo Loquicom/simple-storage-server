@@ -22,3 +22,12 @@ module.exports.createUserFileTable = 'CREATE TABLE "USERFILE" ('
     + 'PRIMARY KEY ("us_id", "fi_id"),'
     + 'FOREIGN KEY ("us_id") REFERENCES "USER" ("us_id"),'
     + 'FOREIGN KEY ("fi_id") REFERENCES "FILE" ("fi_id"));';
+
+// Compte le nombre d'utilisateur avec un nom
+module.exports.userExist = 'SELECT COUNT(*) as nb FROM USER WHERE us_name = ?';
+
+// Recupère un utilisateur
+module.exports.getUser = 'SELECT us_id as id, us_name as name, us_pass as pass FROM USER WHERE us_name = ?';
+
+// Ajout d'un utilisateur
+module.exports.insertUser = 'INSERT INTO USER("us_name", "us_pass") VALUES (?, ?);';
