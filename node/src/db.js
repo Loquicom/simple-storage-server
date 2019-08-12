@@ -1,6 +1,7 @@
 const fs = require('fs');
 const sqlite = require('sqlite3');
 const sql = require('./sql');
+const auth = require('./auth');
 
 // Indique si un fichier existe
 function fileExist(path) {
@@ -13,10 +14,6 @@ function fileExist(path) {
 
 // Class Db
 function Db() {
-    // Active ou non le mode verbeux
-    if(global.verbose){
-        sqlite.verbose();
-    }
     // Connection à la base
     const exist = fileExist(this.DB_PATH);
     console.log('exist',exist);
@@ -30,16 +27,9 @@ function Db() {
 Db.prototype.DB_PATH = './data/loquicompta.db';
 
 Db.prototype.createDb = function() {
-    try {
-        this.db.run(sql.createUserTable);
-        this.db.run(sql.createFileTable);
-        this.db.run(sql.createUserFileTable);
-    } catch(err) {
-        if(global.verbose) {
-            console.error(err);
-        }
-        throw new Error('Error during initialization');
-    }
+    this.db._execute(sql.createUserTable);
+    this.db._execute(sql.createFileTable);
+    this.db._execute(sql.createUserFileTable);
 }
 
 Db.prototype.getUser = function(username) {
@@ -68,6 +58,17 @@ Db.prototype.addFile = function(username, filename, data) {
 
 Db.prototype.updateFile = function(username, filename, data) {
 
+}
+
+Db.prototype._execute = function(sql) {
+    try {
+        this.db.run(sql);
+    } catch(err) {
+        if(global.verbose) {
+            console.error(err);
+        }
+        throw new Error('Error during request');
+    }
 }
 
 // Export
