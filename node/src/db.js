@@ -155,7 +155,7 @@ Db.prototype.addFile = function(username, filename, data) {
                 // Recupération de l'utilisateur
                 this.getUser(username).then((user) => {
                     // Ajoute le lien entre utilisateur et fichier
-                    this._execute(sql.addUserFile, user.id, fileId);
+                    this._execute(sql.addUserFile, [user.id, fileId]);
                 });
             });
         }
