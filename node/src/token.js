@@ -16,7 +16,7 @@ class Token {
         const timestamp = Math.floor(new Date().getTime() / 1000);
         const endtime = timestamp + this.time;
         // Création d'un hash
-        let hash = data + this.secret + endtime;
+        let hash = data.toLowerCase() + this.secret + endtime;
         hash = crypto.createHash('sha512').update(hash).digest('base64');
         hash = hash.replace(/=/g, '');
         // Le token correspond au timestamp de fin + le hash
@@ -34,7 +34,7 @@ class Token {
         }
         // Recreation du hash supposé du token
         data = JSON.stringify(data) || '';
-        let hash = data + this.secret + split[0];
+        let hash = data.toLowerCase() + this.secret + split[0];
         hash = crypto.createHash('sha512').update(hash).digest('base64');
         hash = hash.replace(/=/g, '');
         // Verification que la hash est le même que celui du token passé en parametre
