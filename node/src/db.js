@@ -16,7 +16,6 @@ function fileExist(path) {
 function Db() {
     // Connection à la base
     const exist = fileExist(this.DB_PATH);
-    console.log('exist',exist);
     this.db = new sqlite.Database(this.DB_PATH);
     // Création si besoins de la base
     if(!exist) {
@@ -121,7 +120,7 @@ Db.prototype.getFile = function(username, filename) {
         return false;
     }
     return new Promise((resolve, reject) => {
-        this.db.all(sql.fileExist, [username, filename], (err, rows) => {
+        this.db.all(sql.getFile, [username, filename], (err, rows) => {
             if(err) {
                 if(global.verbose) {
                     console.error(err);
