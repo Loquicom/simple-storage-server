@@ -55,7 +55,7 @@ Connexion de l'utilisateur et retourne un jeton de connexion. Le jeton de connex
 
 ------
 
-`POST /token/{token}`
+`POST /token`
 
 Permet de tester la validitée d'un jeton émit lors de la connexion
 
@@ -76,7 +76,7 @@ Permet de tester la validitée d'un jeton émit lors de la connexion
 
 ------
 
-`POST /list/{token}`
+`POST /list`
 
 Liste les fichiers disponible pour l'utilisateur. La valeur token n'est necessaire que si l'authentification est activée.
 
@@ -116,7 +116,7 @@ Récupère un fichier. Remplacer {file} par l'id du fichier à récupèrer. La v
 
 ------
 
-`POST /save/{file}/{token}`
+`POST /save/{file}`
 
 Sauvegarde un fichier. Remplacer {file} par l'id du fichier à récupèrer. La valeur token n'est necessaire que si l'authentification est activée.
 
@@ -134,22 +134,3 @@ Sauvegarde un fichier. Remplacer {file} par l'id du fichier à récupèrer. La v
     filename: "string"
 }
 ```
-
-------
-
-`POST /logout`
-
-Déconnecte l'utilisateur.
-
-```json
-// Requete
-{
-    user: "string" // Username
-    token: "string"
-}
-// Reponse
-{
-    success: true
-}
-```
-
