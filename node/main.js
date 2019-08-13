@@ -32,6 +32,7 @@ global.verbose = argv.verbose >= 1;
 global.auth = argv.auth;
 
 // Configuration server
+app.use(express.json());
 require('./src/route');
 
 // Lancement serveur
