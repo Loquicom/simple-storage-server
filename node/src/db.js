@@ -1,5 +1,6 @@
 const fs = require('fs');
 const sqlite = require('sqlite3');
+const crypto = require('crypto');
 const sql = require('./sql');
 
 // Indique si un fichier existe
@@ -21,7 +22,7 @@ function Db() {
     if(!exist) {
         this.createDb();
     }
-};
+}
 
 Db.prototype.DB_PATH = './data/loquicompta.db';
 
@@ -76,26 +77,104 @@ Db.prototype.addUser = function(username, passwordhash) {
             this._execute(sql.insertUser, [username, passwordhash]);
         }
     });
+    return true;
 }
 
 Db.prototype.listFile = function(username) {
-
+    if(typeof username !== 'string') {
+        return false;
+    }
+    return new Promise((resolve, reject) => {
+        this.db.all(sql.listFile, username, (err, rows) => {
+            if(err) {
+                if(global.verbose) {
+                    console.error(err);
+                }
+                resolve(false);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
 }
 
 Db.prototype.fileExist = function(username, filename) {
-
+    if(typeof username !== 'string' || typeof filename !== 'string') {
+        return false;
+    }
+    return new Promise((resolve, reject) => {
+        this.db.all(sql.fileExist, [username, filename], (err, rows) => {
+            if(err) {
+                if(global.verbose) {
+                    console.error(err);
+                }
+                resolve(false);
+            } else {
+                resolve(rows[0].nb > 0);
+            }
+        });
+    });
 }
 
 Db.prototype.getFile = function(username, filename) {
-
+    if(typeof username !== 'string' || typeof filename !== 'string') {
+        return false;
+    }
+    return new Promise((resolve, reject) => {
+        this.db.all(sql.fileExist, [username, filename], (err, rows) => {
+            if(err) {
+                if(global.verbose) {
+                    console.error(err);
+                }
+                resolve(false);
+            } else {
+                resolve(rows[0]);
+            }
+        });
+    });
 }
 
 Db.prototype.addFile = function(username, filename, data) {
-
+    if(typeof username !== 'string' || typeof filename !== 'string' || typeof data !== 'string') {
+        return false;
+    }
+    // Verification que le nom n'est pas deja pris pour l'utilisateur
+    this.fileExist(username, filename).then((result) => {
+        if(!result) {
+            // Ajoute les données de base du fichier
+            this._execute(sql.addFile, [filename, data]);
+            // Recupère l'id de l'insert
+            this.db.all(sql.lastId, (err, rows) => {
+                const fileId = rows[0].lastId;
+                // Calcul le hash
+                let hash = fileId + '-' + username + '-' + filename;
+                hash = crypto.createHash('md5').update(hash).digest('base64');
+                hash = hash.replace(/=/g, '');
+                // Ajoute le hash
+                this._execute(sql.addFileHash, [hash, fileId]);
+                // Recupération de l'utilisateur
+                this.getUser(username).then((user) => {
+                    // Ajoute le lien entre utilisateur et fichier
+                    this._execute(sql.addUserFile, user.id, fileId);
+                });
+            });
+        }
+    });
+    return true;
 }
 
 Db.prototype.updateFile = function(username, filename, data) {
-
+    if(typeof username !== 'string' || typeof filename !== 'string' || typeof data !== 'string') {
+        return false;
+    }
+    this.fileExist(username, filename).then((result) => {
+        if(result) {
+            this.getFile(username, filename).then((file) => {
+                this._execute(sql.updateFile, [data, file.hash]);
+            });
+        }
+    });
+    return true;
 }
 
 Db.prototype._execute = function(sql, params) {
