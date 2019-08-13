@@ -18,7 +18,8 @@ Les codes d'erreurs sont les suivants :
 
 - 01 : Requete invalide
 - 02 : Authentification incorrect
-- 03 : Token incorrect
+- 03 : Utilisateur inconnu
+- 04 : Jeton invalide
 
 # Points d'éntrées 
 
@@ -33,6 +34,26 @@ Indique si le serveur necessite un mot de passe pour accèder aux fichiers
     authentication: boolean
 }
 ```
+
+------
+
+`POST /register`
+
+Inscrit un utilisateur sur le serveur
+
+```json
+// Requete
+{
+    user: "string",
+    password: "string"
+}
+// Response
+{
+    success: true
+}
+```
+
+
 
 ------
 
