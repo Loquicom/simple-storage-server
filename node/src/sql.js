@@ -39,7 +39,7 @@ module.exports.listFile = 'SELECT fi_hash as hash, fi_name as name, fi_data as d
     + 'WHERE us_name = lower(?);';
 
 // Compte le nombre de fichier avec un nom appartenant a un certain utilisateur
-module.exports.fileExist = 'SELECT count(*) FROM FILE f ' 
+module.exports.fileExist = 'SELECT count(*) as nb FROM FILE f ' 
     + 'INNER JOIN USERFILE uf on f.fi_id = uf.fi_id '
     + 'INNER JOIN USER u on uf.us_id = u.us_id '
     + 'WHERE us_name = lower(?) '
