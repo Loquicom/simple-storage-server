@@ -33,7 +33,7 @@ module.exports.getUser = 'SELECT us_id as id, us_name as name, us_pass as pass F
 module.exports.insertUser = 'INSERT INTO USER("us_name", "us_pass") VALUES (lower(?), ?);';
 
 // Liste les fichiers
-module.exports.listFile = 'SELECT fi_hash as hash, fi_name as name, fi_data as data FROM FILE f ' 
+module.exports.listFile = 'SELECT fi_hash as hash, fi_name as name FROM FILE f ' 
     + 'INNER JOIN USERFILE uf on f.fi_id = uf.fi_id '
     + 'INNER JOIN USER u on uf.us_id = u.us_id '
     + 'WHERE us_name = lower(?);';
