@@ -18,9 +18,12 @@ const argv = require('yargs')
   })
   .count('verbose')
   .alias('v', 'verbose')
+  .count('sql')
+  .alias('s', 'sql')
   .describe('p', 'port to bind')
-  .describe('v', 'show all informations')
   .describe('auth', 'disables authentication')
+  .describe('v', 'show server informations')
+  .describe('s', 'show sql informations')
   .argv;
 
 // Bibliotheques
@@ -29,6 +32,7 @@ const express = require('express');
 // Creation variable globale
 global.app = express();
 global.verbose = argv.verbose >= 1;
+global.sqlVerbose = argv.sql >= 1;
 global.auth = argv.auth;
 
 // Configuration server

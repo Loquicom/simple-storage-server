@@ -14,6 +14,10 @@ function fileExist(path) {
 
 // Class Db
 function Db() {
+    // Verbeux ou non
+    if(global.sqlVerbose) {
+        sqlite.verbose();
+    }
     // Connection à la base
     const exist = fileExist(this.DB_PATH);
     this.db = new sqlite.Database(this.DB_PATH);
