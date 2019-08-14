@@ -20,6 +20,7 @@ Les codes d'erreurs sont les suivants :
 - 02 : Authentification incorrect
 - 03 : Utilisateur inconnu
 - 04 : Jeton invalide
+- 05 : Erreur serveur
 
 # Points d'éntrées 
 
@@ -110,6 +111,7 @@ Liste les fichiers disponible pour l'utilisateur. La valeur token n'est necessai
 // Reponse
 {
     success: true,
+    total: number,
     list: ["fileId1", "fileId2", ...]
 }
 ```
