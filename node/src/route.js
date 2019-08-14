@@ -6,11 +6,17 @@ const ERR_REQUEST = 1;
 const ERR_AUTH = 2;
 const ERR_UNKNOW = 3;
 const ERR_TOKEN = 4;
+const ERR_SERV = 5;
 
 // Fonctions de traitement pour les routes
-function verify(req, res, next) {
-    if(auth.isActivated() && auth.verify(req.body.user, req.body.token)) {
-        res.json(error(ERR_TOKEN))
+function verifyAuth(req, res, next) {
+    if(req.body.user === undefined || req.body.token === undefined) {
+        res.json(error(ERR_REQUEST));
+        return;
+    }
+    if(auth.isActivated() && !auth.verify(req.body.user, req.body.token)) {
+        res.json(error(ERR_TOKEN));
+        return;
     }
     next();
 }
@@ -33,6 +39,9 @@ function error(code) {
             break;
         case ERR_TOKEN:
             answer.message = 'Invalid token';
+            break;
+        case ERR_SERV:
+            answer.message = 'Server error';
             break;
         default:
             answer.message = 'Unknow error';
@@ -92,6 +101,21 @@ app.post('/token', (req, res) => {
     }
     res.json(success({valid: auth.verify(req.body.user, req.body.token)}));
 });
+
+app.post('/list', [verifyAuth, (req, res) => {
+    db.listFile(req.body.user).then((list) => {
+        console.log(list.length);
+        console.log(list);
+        if(list === false) {
+            res.json(error(ERR_SERV));
+        } else {
+            res.json(success({
+                total: list.length,
+                list: list
+            }));
+        }
+    });
+}]);
 
 /*
 app.get('/', function (req, res) {
