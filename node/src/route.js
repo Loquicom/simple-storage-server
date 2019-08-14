@@ -21,6 +21,19 @@ function verifyAuth(req, res, next) {
     next();
 }
 
+function verbose(req, res, next) {
+    if(global.verbose) {
+        const nbProp = Object.keys(req.body);
+        console.log(`\nCall ${req.route.path} with ${nbProp.length} parameter(s)`);
+        if(nbProp.length > 0) {
+            for(prop in req.body) {
+                console.log(`   ${prop}: ${req.body[prop]}`);
+            }
+        }
+    }
+    next();
+}
+
 // Fonctions reponses
 function error(code) {
     let answer = {
@@ -62,11 +75,11 @@ function success(data) {
 }
 
 // Definition des routes
-app.get('/authentication', (req, res) => {
+app.get('/authentication', [verbose, (req, res) => {
     res.json(success({authentication: auth.isActivated()}));
-});
+}]);
 
-app.post('/register', (req, res) => {
+app.post('/register', [verbose, (req, res) => {
     if(req.body.user === undefined || req.body.password === undefined) {
         res.json(error(ERR_REQUEST));
         return;
@@ -74,9 +87,9 @@ app.post('/register', (req, res) => {
     const passHash = auth.passwordHash(req.body.password);
     db.addUser(req.body.user, passHash);
     return res.json(success());
-});
+}]);
 
-app.post('/login', (req, res) => {
+app.post('/login', [verbose, (req, res) => {
     if(req.body.user === undefined || req.body.password === undefined) {
         res.json(error(ERR_REQUEST));
         return;
@@ -92,20 +105,19 @@ app.post('/login', (req, res) => {
             }
         }
     });
-});
+}]);
 
-app.post('/token', (req, res) => {
+app.post('/token', [verbose, (req, res) => {
     if(req.body.user === undefined || req.body.token === undefined) {
         res.json(error(ERR_REQUEST));
         return;
     }
     res.json(success({valid: auth.verify(req.body.user, req.body.token)}));
-});
+}]);
 
-app.post('/list', [verifyAuth, (req, res) => {
+app.post('/list', [verbose, verifyAuth, (req, res) => {
     db.listFile(req.body.user).then((list) => {
-        console.log(list.length);
-        console.log(list);
+        //console.log(req);
         if(list === false) {
             res.json(error(ERR_SERV));
         } else {
