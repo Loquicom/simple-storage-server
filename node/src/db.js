@@ -15,34 +15,34 @@ function fileExist(path) {
 // Class Db
 function Db() {
     // Verbeux ou non
-    if(global.sqlVerbose) {
+    if (global.sqlVerbose) {
         sqlite.verbose();
     }
     // Connection à la base
     const exist = fileExist(this.DB_PATH);
     this.db = new sqlite.Database(this.DB_PATH);
     // Création si besoins de la base
-    if(!exist) {
+    if (!exist) {
         this.createDb();
     }
 }
 
 Db.prototype.DB_PATH = './data/loquicompta.db';
 
-Db.prototype.createDb = function() {
+Db.prototype.createDb = function () {
     this._execute(sql.createUserTable);
     this._execute(sql.createFileTable);
     this._execute(sql.createUserFileTable);
-}
+};
 
-Db.prototype.userExist = function(username) {
-    if(typeof username !== 'string') {
+Db.prototype.userExist = function (username) {
+    if (typeof username !== 'string') {
         return false;
     }
     return new Promise((resolve, reject) => {
         this.db.all(sql.userExist, username, (err, rows) => {
-            if(err) {
-                if(global.verbose) {
+            if (err) {
+                if (global.verbose) {
                     console.error(err);
                 }
                 resolve(false);
@@ -51,16 +51,16 @@ Db.prototype.userExist = function(username) {
             }
         });
     });
-}
+};
 
-Db.prototype.getUser = function(username) {
-    if(typeof username !== 'string') {
+Db.prototype.getUser = function (username) {
+    if (typeof username !== 'string') {
         return false;
     }
     return new Promise((resolve, reject) => {
         this.db.all(sql.getUser, username, (err, rows) => {
-            if(err) {
-                if(global.verbose) {
+            if (err) {
+                if (global.verbose) {
                     console.error(err);
                 }
                 resolve(false);
@@ -69,28 +69,28 @@ Db.prototype.getUser = function(username) {
             }
         });
     });
-}
+};
 
-Db.prototype.addUser = function(username, passwordhash) {
-    if(typeof username !== 'string' && typeof passwordhash !== 'string') {
+Db.prototype.addUser = function (username, passwordhash) {
+    if (typeof username !== 'string' && typeof passwordhash !== 'string') {
         return false;
     }
     this.userExist(username).then((result) => {
-        if(!result) {
+        if (!result) {
             this._execute(sql.insertUser, [username, passwordhash]);
         }
     });
     return true;
-}
+};
 
-Db.prototype.listFile = function(username) {
-    if(typeof username !== 'string') {
+Db.prototype.listFile = function (username) {
+    if (typeof username !== 'string') {
         return false;
     }
     return new Promise((resolve, reject) => {
         this.db.all(sql.listFile, username, (err, rows) => {
-            if(err) {
-                if(global.verbose) {
+            if (err) {
+                if (global.verbose) {
                     console.error(err);
                 }
                 resolve(false);
@@ -99,16 +99,16 @@ Db.prototype.listFile = function(username) {
             }
         });
     });
-}
+};
 
-Db.prototype.fileExist = function(username, filename) {
-    if(typeof username !== 'string' || typeof filename !== 'string') {
+Db.prototype.fileExist = function (username, filename) {
+    if (typeof username !== 'string' || typeof filename !== 'string') {
         return false;
     }
     return new Promise((resolve, reject) => {
         this.db.all(sql.fileExist, [username, filename], (err, rows) => {
-            if(err) {
-                if(global.verbose) {
+            if (err) {
+                if (global.verbose) {
                     console.error(err);
                 }
                 resolve(false);
@@ -117,16 +117,16 @@ Db.prototype.fileExist = function(username, filename) {
             }
         });
     });
-}
+};
 
-Db.prototype.getFile = function(username, filename) {
-    if(typeof username !== 'string' || typeof filename !== 'string') {
+Db.prototype.getFile = function (username, filename) {
+    if (typeof username !== 'string' || typeof filename !== 'string') {
         return false;
     }
     return new Promise((resolve, reject) => {
         this.db.all(sql.getFile, [username, filename], (err, rows) => {
-            if(err) {
-                if(global.verbose) {
+            if (err) {
+                if (global.verbose) {
                     console.error(err);
                 }
                 resolve(false);
@@ -135,15 +135,15 @@ Db.prototype.getFile = function(username, filename) {
             }
         });
     });
-}
+};
 
-Db.prototype.addFile = function(username, filename, data) {
-    if(typeof username !== 'string' || typeof filename !== 'string' || typeof data !== 'string') {
+Db.prototype.addFile = function (username, filename, data) {
+    if (typeof username !== 'string' || typeof filename !== 'string' || typeof data !== 'string') {
         return false;
     }
     // Verification que le nom n'est pas deja pris pour l'utilisateur
     this.fileExist(username, filename).then((result) => {
-        if(!result) {
+        if (!result) {
             // Ajoute les données de base du fichier
             this._execute(sql.addFile, [filename, data]);
             // Recupère l'id de l'insert
@@ -164,36 +164,36 @@ Db.prototype.addFile = function(username, filename, data) {
         }
     });
     return true;
-}
+};
 
-Db.prototype.updateFile = function(username, filename, data) {
-    if(typeof username !== 'string' || typeof filename !== 'string' || typeof data !== 'string') {
+Db.prototype.updateFile = function (username, filename, data) {
+    if (typeof username !== 'string' || typeof filename !== 'string' || typeof data !== 'string') {
         return false;
     }
     this.fileExist(username, filename).then((result) => {
-        if(result) {
+        if (result) {
             this.getFile(username, filename).then((file) => {
                 this._execute(sql.updateFile, [data, file.hash]);
             });
         }
     });
     return true;
-}
+};
 
-Db.prototype._execute = function(sql, params) {
+Db.prototype._execute = function (sql, params) {
     try {
-        if(params !== undefined && params !== null) {
+        if (params !== undefined && params !== null) {
             this.db.run(sql, params);
         } else {
             this.db.run(sql);
         }
-    } catch(err) {
-        if(global.verbose) {
+    } catch (err) {
+        if (global.verbose) {
             console.error(err);
         }
         throw new Error('Error during request');
     }
-}
+};
 
 // Export
 module.exports = new Db();
