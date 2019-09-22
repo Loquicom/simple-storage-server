@@ -1,8 +1,10 @@
 
 
-Spécification de l'API d'un serveur Loquicompta
+# Simple Storage Server
 
-# Réponse en cas d'erreur
+Spécification d'un serveur d'hebergement de fichier par http. Permet de stocker des fichier et de les rattacher à un utilisateur. L'API mise a disposition du serveur est décrite en dessous. Deux implémentation d'éxemple sont disponible, en nodejs et en php.
+
+## Réponse en cas d'erreur
 
 Lors de l'utilisation de l'api si la requete est invalide le retour est de la forme suivante
 
@@ -22,7 +24,7 @@ Les codes d'erreurs sont les suivants :
 - 04 : Jeton invalide
 - 05 : Erreur serveur
 
-# Points d'éntrées 
+## Points d'éntrées 
 
 `GET /authentication`
 
@@ -84,7 +86,7 @@ Permet de tester la validitée d'un jeton émit lors de la connexion
 ```json
 // Requete
 {
-    user: "string" // Username
+    user: "string", // Username
     token: "string"
 }
 // Reponse
@@ -105,7 +107,7 @@ Liste les fichiers disponible pour l'utilisateur. La valeur token n'est necessai
 ```json
 // Requete
 {
-    user: "string" // Username
+    user: "string", // Username
     token: "string"
 }
 // Reponse
@@ -125,7 +127,7 @@ Récupère un fichier. Remplacer {file} par l'id du fichier à récupèrer. La v
 ```json
 // Requete
 {
-    user: "string" // Username
+    user: "string", // Username
     token: "string"
 }
 // Reponse
@@ -146,8 +148,8 @@ Sauvegarde un fichier. Remplacer {file} par l'id du fichier à récupèrer. La v
 ```json
 // Requete
 {
-    user: "string" // Username
-    token: "string"
+    user: "string", // Username
+    token: "string",
     data: "string" // File content
 }
 // Reponse
@@ -157,3 +159,22 @@ Sauvegarde un fichier. Remplacer {file} par l'id du fichier à récupèrer. La v
     filename: "string"
 }
 ```
+
+------
+
+`DELETE  /delete/{file}`
+
+Supprime un fichier. Remplacer {file} par l'id du fichier à récupèrer. La valeur token n'est necessaire que si l'authentification est activée.
+
+```json
+// Requete
+{
+    user: "string" // Username
+    token: "string"
+}
+// Reponse
+{
+    success: true
+}
+```
+
