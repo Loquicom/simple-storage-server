@@ -131,7 +131,7 @@ app.post('/list', [verbose, verifyAuth, (req, res) => {
     });
 }]);
 
-app.get('/get/:file', [verbose, verifyAuth, (req, res) => {
+app.post('/get/:file', [verbose, verifyAuth, (req, res) => {
     db.getFile(req.body.user, req.params.file).then((file) => {
         // Erreur
         if (file === false) {
@@ -156,6 +156,10 @@ app.get('/get/:file', [verbose, verifyAuth, (req, res) => {
             });
         }
     });
+}]);
+
+app.post('/save/:file', [verbose, verifyAuth, (req, res) => {
+    
 }]);
 
 /*
