@@ -171,7 +171,7 @@ app.post('/save/:file', [verbose, verifyAuth, (req, res) => {
     if (global.storage === 'file') {
         let hash = Date.now() + '-' + req.body.user + '-' + req.params.file;
         hash = crypto.createHash('md5').update(hash).digest('base64');
-        hash = hash.replace(/=/g, '');
+        hash = hash.replace(/=/g, '').replace(/\//g, '');
         data = './data/' + hash + '.fdata';
     }
     let promise = db.addFile(req.body.user, req.params.file, data);

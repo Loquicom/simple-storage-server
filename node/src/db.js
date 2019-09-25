@@ -162,7 +162,7 @@ Db.prototype.addFile = function (username, filename, data) {
                 //Calcul du hash
                 let hash = fileId + '-' + username + '-' + filename;
                 hash = crypto.createHash('md5').update(hash).digest('base64');
-                hash = hash.replace(/=/g, '');
+                hash = hash.replace(/=/g, '').replace(/\//g, '');
                 // Ajoute le hash
                 this._execute(sql.addFileHash, [hash, fileId]);
                 // Recupération de l'utilisateur
