@@ -121,7 +121,7 @@ Liste les fichiers disponible pour l'utilisateur. La valeur token n'est necessai
 
 ------
 
-`POST /get/{file}`
+`POST /get/{fileId}`
 
 Récupère un fichier. Remplacer {file} par l'id du fichier à récupèrer. La valeur token n'est necessaire que si l'authentification est activée.
 
@@ -142,9 +142,9 @@ Récupère un fichier. Remplacer {file} par l'id du fichier à récupèrer. La v
 
 ------
 
-`POST /save/{file}`
+`POST /save/{fileName}`
 
-Sauvegarde un fichier. Remplacer {file} par le nom du fichier à sauvegarder. La valeur token n'est necessaire que si l'authentification est activée.
+Sauvegarde un fichier. Remplacer {fileName} par le nom du fichier à sauvegarder. La valeur token n'est necessaire que si l'authentification est activée.
 
 ```json
 // Requete
