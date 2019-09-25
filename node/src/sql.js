@@ -33,26 +33,26 @@ module.exports.getUser = 'SELECT us_id as id, us_name as name, us_pass as pass F
 module.exports.insertUser = 'INSERT INTO USER("us_name", "us_pass") VALUES (lower(?), ?);';
 
 // Liste les fichiers
-module.exports.listFile = 'SELECT fi_hash as hash, fi_name as name FROM FILE f ' 
+module.exports.listFile = 'SELECT fi_hash as hash, fi_name as name FROM FILE f '
     + 'INNER JOIN USERFILE uf on f.fi_id = uf.fi_id '
     + 'INNER JOIN USER u on uf.us_id = u.us_id '
     + 'WHERE us_name = lower(?);';
 
 // Compte le nombre de fichier avec un nom appartenant a un certain utilisateur
-module.exports.fileExist = 'SELECT count(*) as nb FROM FILE f ' 
+module.exports.fileExist = 'SELECT count(*) as nb FROM FILE f '
     + 'INNER JOIN USERFILE uf on f.fi_id = uf.fi_id '
     + 'INNER JOIN USER u on uf.us_id = u.us_id '
     + 'WHERE us_name = lower(?) '
     + 'AND fi_name = lower(?);';
 
-module.exports.getFile = 'SELECT fi_hash as hash, fi_name as name, fi_data as data FROM FILE f ' 
+module.exports.getFile = 'SELECT fi_hash as hash, fi_name as name, fi_data as data FROM FILE f '
     + 'INNER JOIN USERFILE uf on f.fi_id = uf.fi_id '
     + 'INNER JOIN USER u on uf.us_id = u.us_id '
     + 'WHERE us_name = lower(?) '
-    + 'AND fi_name = lower(?);';
+    + 'AND fi_hash = lower(?);';
 
 // Ajoute un fichier en base
-module.exports.addFile = 'INSERT INTO FILE("fi_name", "fi_data") VALUES (lower(?), ?);'
+module.exports.addFile = 'INSERT INTO FILE("fi_name", "fi_data") VALUES (lower(?), ?);';
 
 // Ajoute le hash du fichier
 module.exports.addFileHash = 'UPDATE FILE SET fi_hash = ? WHERE fi_id = ?;';

@@ -119,12 +119,12 @@ Db.prototype.fileExist = function (username, filename) {
     });
 };
 
-Db.prototype.getFile = function (username, filename) {
-    if (typeof username !== 'string' || typeof filename !== 'string') {
+Db.prototype.getFile = function (username, fileId) {
+    if (typeof username !== 'string' || typeof fileId !== 'string') {
         return false;
     }
     return new Promise((resolve, reject) => {
-        this.db.all(sql.getFile, [username, filename], (err, rows) => {
+        this.db.all(sql.getFile, [username, fileId], (err, rows) => {
             if (err) {
                 if (global.verbose) {
                     console.error(err);
@@ -141,15 +141,20 @@ Db.prototype.addFile = function (username, filename, data) {
     if (typeof username !== 'string' || typeof filename !== 'string' || typeof data !== 'string') {
         return false;
     }
-    // Verification que le nom n'est pas deja pris pour l'utilisateur
-    this.fileExist(username, filename).then((result) => {
-        if (!result) {
-            // Ajoute les données de base du fichier
-            this._execute(sql.addFile, [filename, data]);
-            // Recupère l'id de l'insert
-            this.db.all(sql.lastId, (err, rows) => {
+    // Ajout du fichier
+    return new Promise((resolve, reject) => {
+        // Ajoute les données de base du fichier
+        this._execute(sql.addFile, [filename, data]);
+        // Recupère l'id du fichier
+        this.db.all(sql.lastId, (err, rows) => {
+            if (err) {
+                if (global.verbose) {
+                    console.error(err);
+                }
+                resolve(false);
+            } else {
                 const fileId = rows[0].lastId;
-                // Calcul le hash
+                //Calcul du hash
                 let hash = fileId + '-' + username + '-' + filename;
                 hash = crypto.createHash('md5').update(hash).digest('base64');
                 hash = hash.replace(/=/g, '');
@@ -157,13 +162,21 @@ Db.prototype.addFile = function (username, filename, data) {
                 this._execute(sql.addFileHash, [hash, fileId]);
                 // Recupération de l'utilisateur
                 this.getUser(username).then((user) => {
-                    // Ajoute le lien entre utilisateur et fichier
-                    this._execute(sql.addUserFile, [user.id, fileId]);
+                    if (user === false) {
+                        if (global.verbose) {
+                            console.error(err);
+                        }
+                        resolve(false);
+                    } else {
+                        // Ajoute le lien entre utilisateur et fichier
+                        this._execute(sql.addUserFile, [user.id, fileId]);
+                        // Retourne le hash du fichier
+                        resolve(hash);
+                    }
                 });
-            });
-        }
+            }
+        });
     });
-    return true;
 };
 
 Db.prototype.updateFile = function (username, filename, data) {
