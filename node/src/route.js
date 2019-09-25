@@ -101,7 +101,7 @@ app.post('/login', [verbose, (req, res) => {
     }
     const promise = db.getUser(req.body.user);
     if (promise === false) {
-        res.json(error(ERR_SERV));
+        res.json(error(ERR_REQUEST));
         return;
     }
     promise.then((user) => {
@@ -128,7 +128,7 @@ app.post('/token', [verbose, (req, res) => {
 app.post('/list', [verbose, verifyAuth, (req, res) => {
     const promise = db.listFile(req.body.user);
     if (promise === false) {
-        res.json(error(ERR_SERV));
+        res.json(error(ERR_REQUEST));
         return;
     }
     promise.then((list) => {
@@ -146,7 +146,7 @@ app.post('/list', [verbose, verifyAuth, (req, res) => {
 app.post('/get/:file', [verbose, verifyAuth, (req, res) => {
     const promise = db.getFile(req.body.user, req.params.file);
     if (promise === false) {
-        res.json(error(ERR_SERV));
+        res.json(error(ERR_REQUEST));
         return;
     }
     promise.then((file) => {
@@ -191,7 +191,7 @@ app.post('/save/:file', [verbose, verifyAuth, (req, res) => {
     }
     const promise = db.addFile(req.body.user, req.params.file, data);
     if (promise === false) {
-        res.json(error(ERR_SERV));
+        res.json(error(ERR_REQUEST));
         return;
     }
     promise.then((fileId) => {
