@@ -1,4 +1,5 @@
 const fs = require('fs');
+const crypto = require('crypto');
 const auth = require('./auth');
 const db = require('./db');
 
@@ -159,7 +160,41 @@ app.post('/get/:file', [verbose, verifyAuth, (req, res) => {
 }]);
 
 app.post('/save/:file', [verbose, verifyAuth, (req, res) => {
-    
+    //Si on sauvegarde les données dans des fichiers, generation du chemin
+    let data = req.body.data;
+    if (global.storage === 'file') {
+        let hash = Date.now() + '-' + req.body.user + '-' + req.params.file;
+        hash = crypto.createHash('md5').update(hash).digest('base64');
+        hash = hash.replace(/=/g, '');
+        data = './data/' + hash + '.fdata';
+    }
+    let promise = db.addFile(req.body.user, req.params.file, data);
+    if (promise === false) {
+        res.json(error(ERR_SERV));
+    }
+    promise.then((fileId) => {
+        if (fileId === false) {
+            res.json(ERR_SERV);
+        } else {
+            // Si en mode fichier stockage dans un fichier
+            if ((global.storage === 'file')) {
+                fs.writeFile(data, req.body.data, (err) => {
+                    if (err) {
+                        if (global.verbose) {
+                            console.error(err);
+                        }
+                        res.json(error(ERR_SERV));
+                    } else {
+                        res.json(success({fileId: fileId, fileName: req.params.file}));
+                    }
+                });
+            }
+            // Le fichier est directement sauvegarder en base
+            else {
+                res.json(success({fileId: fileId, fileName: req.params.file}));
+            }
+        }
+    });
 }]);
 
 /*
