@@ -131,7 +131,12 @@ Db.prototype.getFile = function (username, fileId) {
                 }
                 resolve(false);
             } else {
-                resolve(rows[0]);
+                // Regarde si il y a des resultat
+                if (rows.length > 0) {
+                    resolve(rows[0]);
+                } else {
+                    resolve(null);
+                }
             }
         });
     });
