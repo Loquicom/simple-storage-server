@@ -157,7 +157,7 @@ app.post('/get/:file', [verbose, verifyAuth, (req, res) => {
                     res.json(error(ERR_FILE));
                 }
                 fs.readFile(file.data, (err, data) => {
-                    result.data = data;
+                    result.data = data.toString();
                     res.json(success(result));
                 });
             }
