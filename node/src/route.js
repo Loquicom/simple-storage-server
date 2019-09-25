@@ -61,6 +61,7 @@ function error(code) {
             break;
         case ERR_FILE:
             answer.message = 'File not found';
+            break;
         default:
             answer.message = 'Unknow error';
     }
@@ -137,24 +138,29 @@ app.post('/get/:file', [verbose, verifyAuth, (req, res) => {
         // Erreur
         if (file === false) {
             res.json(error(ERR_SERV));
+        } else // Le fichier n'existe pas
+        if (file === null) {
+            res.json(error(ERR_FILE));
         }
         // Création reponse commune
-        let result = {
-            fileid: file.fi_hash,
-            filename: file.fi_name
-        };
-        // Recupération données fichier
-        if (global.storage === 'database') {
-            result.data = file.data;
-            res.json(success(result));
-        } else {
-            if (!fs.existsSync(file.data)) {
-                res.json(error(ERR_FILE));
-            }
-            fs.readFile(file.data, (err, data) => {
-                result.data = data;
+        else {
+            let result = {
+                fileid: file.fi_hash,
+                filename: file.fi_name
+            };
+            // Recupération données fichier
+            if (global.storage === 'database') {
+                result.data = file.data;
                 res.json(success(result));
-            });
+            } else {
+                if (!fs.existsSync(file.data)) {
+                    res.json(error(ERR_FILE));
+                }
+                fs.readFile(file.data, (err, data) => {
+                    result.data = data;
+                    res.json(success(result));
+                });
+            }
         }
     });
 }]);
