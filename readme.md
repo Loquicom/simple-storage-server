@@ -23,6 +23,7 @@ Les codes d'erreurs sont les suivants :
 - 03 : Utilisateur inconnu
 - 04 : Jeton invalide
 - 05 : Erreur serveur
+- 06 : Fichier introuvable
 
 ## Points d'éntrées 
 
@@ -143,7 +144,7 @@ Récupère un fichier. Remplacer {file} par l'id du fichier à récupèrer. La v
 
 `POST /save/{file}`
 
-Sauvegarde un fichier. Remplacer {file} par l'id du fichier à récupèrer. La valeur token n'est necessaire que si l'authentification est activée.
+Sauvegarde un fichier. Remplacer {file} par le nom du fichier à sauvegarder. La valeur token n'est necessaire que si l'authentification est activée.
 
 ```json
 // Requete
