@@ -49,7 +49,7 @@ module.exports.getFile = 'SELECT fi_hash as hash, fi_name as name, fi_data as da
     + 'INNER JOIN USERFILE uf on f.fi_id = uf.fi_id '
     + 'INNER JOIN USER u on uf.us_id = u.us_id '
     + 'WHERE us_name = lower(?) '
-    + 'AND fi_hash = lower(?);';
+    + 'AND fi_hash = ?;';
 
 // Ajoute un fichier en base
 module.exports.addFile = 'INSERT INTO FILE("fi_name", "fi_data") VALUES (lower(?), ?);';
