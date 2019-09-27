@@ -1,4 +1,5 @@
 {
   "storage": "database",
-  "auth": true
+  "auth": true,
+  "findPort": true
 }

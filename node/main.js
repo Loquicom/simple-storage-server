@@ -33,6 +33,7 @@ const config = require('./src/config');
 
 // Bibliotheques
 const express = require('express');
+const portfinder = require('portfinder');
 
 // Creation variable globale
 global.app = express();
@@ -49,7 +50,37 @@ global.sqlVerbose = argv.sql >= 1;
 app.use(express.json());
 require('./src/route');
 
-// Lancement serveur
-app.listen(argv.port, () => {
-    console.info(`Server starting on port ${argv.port} (http://localhost:${argv.port})`);
-});
+// Lancement serveur sur le port demandé
+portfinder.basePort = argv.port;
+portfinder.highestPort = argv.port;
+portfinder.getPortPromise()
+    .then((port) => {
+        app.listen(argv.port, () => {
+            console.info(`Server starting on port ${port} (http://localhost:${port})`);
+        });
+    })
+    .catch((err) => {
+        if(err.toString().includes('Error: No open ports found') && config.findPort) {
+            console.info(`Port ${argv.port} not available, search for a new available port`);
+        } else {
+            console.error(err.toString());
+            console.info('Unable to start the server, end of execution');
+            process.exit();
+        }
+    });
+
+// Recherche d'un port ouvert
+portfinder.basePort = 8000;
+portfinder.highestPort = 65535;
+portfinder.getPortPromise()
+    .then((port) => {
+        app.listen(port, () => {
+            console.info(`New available port found: ${port}`);
+            console.info(`Server starting on port ${port} (http://localhost:${port})`);
+        });
+    })
+    .catch((err) => {
+        console.err(err);
+        console.info('Unable to start the server, end of execution');
+        process.exit();
+    });
