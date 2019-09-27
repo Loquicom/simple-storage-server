@@ -1,5 +1,11 @@
 #!/usr/bin/env node
 
+// Gestion du signal d'arret (SIGINT = Ctrl+C)
+process.on('SIGINT', function() {
+    console.info("\nStopping the server");
+    process.exit();
+});
+
 // Gestion des commandes et des options de l'application
 const argv = require('yargs')
     .command('serve [port]', 'start the Loquicompta server', (yargs) => {
