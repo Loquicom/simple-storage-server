@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // Gestion du signal d'arret (SIGINT = Ctrl+C)
-process.on('SIGINT', function() {
+process.on('SIGINT', function () {
     console.info("\nStopping the server");
     process.exit();
 });
@@ -66,27 +66,26 @@ portfinder.getPortPromise()
         });
     })
     .catch((err) => {
-        if(err.toString().includes('Error: No open ports found') && config.findPort) {
+        if (err.toString().includes('Error: No open ports') && config.findPort) {
             console.info(`Port ${argv.port} not available, search for a new available port`);
+            // Recherche d'un port ouvert
+            portfinder.basePort = 8000;
+            portfinder.highestPort = 65535;
+            portfinder.getPortPromise()
+                .then((port) => {
+                    app.listen(port, () => {
+                        console.info(`New available port found: ${port}`);
+                        console.info(`Server starting on port ${port} (http://localhost:${port})`);
+                    });
+                })
+                .catch((err) => {
+                    console.err(err);
+                    console.info('Unable to start the server, end of execution');
+                    process.exit();
+                });
         } else {
             console.error(err.toString());
             console.info('Unable to start the server, end of execution');
             process.exit();
         }
-    });
-
-// Recherche d'un port ouvert
-portfinder.basePort = 8000;
-portfinder.highestPort = 65535;
-portfinder.getPortPromise()
-    .then((port) => {
-        app.listen(port, () => {
-            console.info(`New available port found: ${port}`);
-            console.info(`Server starting on port ${port} (http://localhost:${port})`);
-        });
-    })
-    .catch((err) => {
-        console.err(err);
-        console.info('Unable to start the server, end of execution');
-        process.exit();
     });
