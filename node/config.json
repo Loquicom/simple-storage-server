@@ -1,5 +1,7 @@
 {
   "storage": "database",
   "auth": true,
-  "findPort": true
+  "findPort": true,
+  "basePort": 8000,
+  "highestPort": 65535
 }

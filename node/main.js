@@ -69,8 +69,8 @@ portfinder.getPortPromise()
         if (err.toString().includes('Error: No open ports') && config.findPort) {
             console.info(`Port ${argv.port} not available, search for a new available port`);
             // Recherche d'un port ouvert
-            portfinder.basePort = 8000;
-            portfinder.highestPort = 65535;
+            portfinder.basePort = config.basePort;
+            portfinder.highestPort = config.highestPort;
             portfinder.getPortPromise()
                 .then((port) => {
                     app.listen(port, () => {
