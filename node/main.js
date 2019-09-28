@@ -37,12 +37,7 @@ const argv = require('yargs')
 // Chargement fichier config
 const config = require('./src/config');
 
-// Bibliotheques
-const express = require('express');
-const portfinder = require('portfinder');
-
 // Creation variable globale
-global.app = express();
 if (!config.auth) {
     global.auth = false;
 } else {
@@ -52,40 +47,28 @@ global.storage = config.storage;
 global.verbose = argv.verbose >= 1;
 global.sqlVerbose = argv.sql >= 1;
 
-// Configuration server
-app.use(express.json());
-require('./src/route');
-
-// Lancement serveur sur le port demandé
-portfinder.basePort = argv.port;
-portfinder.highestPort = argv.port;
-portfinder.getPortPromise()
-    .then((port) => {
-        app.listen(argv.port, () => {
+// Lancement du serveur
+const server = require('./src/server');
+server.route(require('./src/router'));
+server.start(argv.port).then((port) => {
+    console.info(`Server starting on port ${port} (http://localhost:${port})`);
+}).catch((err) => {
+    // Si erreur port deja utilisé et option recherche de port ouvert activée
+    if (err.toString().includes('Error: No open ports') && config.findPort) {
+        console.info(`Port ${argv.port} not available, search for a new available port`);
+        server.start(config.basePort, config.highestPort).then((port) => {
+            console.info(`New available port found: ${port}`);
             console.info(`Server starting on port ${port} (http://localhost:${port})`);
-        });
-    })
-    .catch((err) => {
-        if (err.toString().includes('Error: No open ports') && config.findPort) {
-            console.info(`Port ${argv.port} not available, search for a new available port`);
-            // Recherche d'un port ouvert
-            portfinder.basePort = config.basePort;
-            portfinder.highestPort = config.highestPort;
-            portfinder.getPortPromise()
-                .then((port) => {
-                    app.listen(port, () => {
-                        console.info(`New available port found: ${port}`);
-                        console.info(`Server starting on port ${port} (http://localhost:${port})`);
-                    });
-                })
-                .catch((err) => {
-                    console.err(err);
-                    console.info('Unable to start the server, end of execution');
-                    process.exit();
-                });
-        } else {
+        }).catch((err) => {
             console.error(err.toString());
             console.info('Unable to start the server, end of execution');
             process.exit();
-        }
-    });
+        });
+    }
+    // Sinon erreur
+    else {
+        console.error(err.toString());
+        console.info('Unable to start the server, end of execution');
+        process.exit();
+    }
+});
