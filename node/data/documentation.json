@@ -1,0 +1,67 @@
+{
+  "application": "simple storage server",
+  "ver": "1.0.0",
+  "entrypoint": {
+    "GET": {
+      "/": {
+        "desc": "get information about the server API",
+        "params": null,
+        "return": "description of the API"
+      },
+      "/authentication": {
+        "desc": "",
+        "params": null,
+        "return": [
+          {
+            "key": "success",
+            "value": true
+          },
+          {
+            "key": "authentication",
+            "value": "boolean"
+          }
+        ]
+      }
+    },
+    "POST": {
+      "/register": {
+        "desc": "register a new user",
+        "params": [
+          {
+            "key": "user",
+            "value": "string",
+            "desc": "name of the new user"
+          },
+          {
+            "key": "password",
+            "value": "string",
+            "desc": "password of the new user"
+          }
+        ],
+        "return": [
+          {
+            "key": "success",
+            "value": true
+          }
+        ]
+      }
+    },
+    "Error": {
+      "desc": "Return when error occurs",
+      "returns": [
+        {
+          "key": "success",
+          "value": false
+        },
+        {
+          "key": "code",
+          "value": "int"
+        },
+        {
+          "key": "message",
+          "value": "string"
+        }
+      ]
+    }
+  }
+}

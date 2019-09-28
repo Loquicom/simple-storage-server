@@ -57,6 +57,7 @@ const router = class Router {
 
     constructor(app) {
         this.app = app;
+        this.doc = require('../data/documentation.json');
     }
 
     /* --- Helper function --- */
@@ -90,6 +91,10 @@ const router = class Router {
     /* --- Definitions des routes --- */
 
     route() {
+        this.app.get('/', [this.verbose, (req, res) => {
+            res.json(this.doc);
+        }]);
+
         this.app.get('/authentication', [this.verbose, (req, res) => {
             res.json(success({authentication: auth.isActivated()}));
         }]);
