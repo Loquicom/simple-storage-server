@@ -23,7 +23,7 @@ class Server {
             // Tentative de demarrage du serveur sur la plage de port definit
             portfinder.getPortPromise().then((serverPort) => {
                 if (this.https) {
-
+                    this.httpsServer(serverPort);
                 } else {
                     this.httpServer(serverPort);
                 }
@@ -38,8 +38,11 @@ class Server {
         this.app.listen(port);
     }
 
-    httpsServer() {
-
+    httpsServer(port) {
+        https.createServer({
+            key: fs.readFileSync('./data/key.pem'),
+            cert: fs.readFileSync('./data/cert.pem')
+        }, this.app).listen(port);
     }
 
 }

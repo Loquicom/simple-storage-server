@@ -23,6 +23,8 @@ if (config.storage === undefined) {
     throw 'basePort undefined in the config file';
 } else if (config.highestPort === undefined) {
     throw 'highestPort undefined in the config file';
+} else if (config.https === undefined) {
+    throw 'https undefined in the config file';
 }
 
 //Verification valeur
@@ -36,6 +38,8 @@ if (config.storage !== 'database' && config.storage !== 'file') {
     throw 'Bad value for basePort: number between 0 and 65535 expected';
 } else if (config.highestPort < 0 || config.highestPort > 65535 || config.highestPort < config.basePort) {
     throw 'Bad value for highestPort: number between 0 and 65535 and higher than or equal basePort expected';
+} else if (typeof config.https !== 'boolean') {
+    throw 'Bad value for https: boolean expected';
 }
 
 module.exports = config;

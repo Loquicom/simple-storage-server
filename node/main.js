@@ -36,6 +36,7 @@ const argv = require('yargs')
 
 // Chargement fichier config
 const config = require('./src/config');
+const protocol = (config.https) ? 'https' : 'http';
 
 // Creation variable globale
 if (!config.auth) {
@@ -49,16 +50,17 @@ global.sqlVerbose = argv.sql >= 1;
 
 // Lancement du serveur
 const server = require('./src/server');
+server.https = config.https;
 server.route(require('./src/router'));
 server.start(argv.port).then((port) => {
-    console.info(`Server starting on port ${port} (http://localhost:${port})`);
+    console.info(`Server starting on port ${port} (${protocol}://localhost:${port})`);
 }).catch((err) => {
     // Si erreur port deja utilisé et option recherche de port ouvert activée
     if (err.toString().includes('Error: No open ports') && config.findPort) {
         console.info(`Port ${argv.port} not available, search for a new available port`);
         server.start(config.basePort, config.highestPort).then((port) => {
             console.info(`New available port found: ${port}`);
-            console.info(`Server starting on port ${port} (http://localhost:${port})`);
+            console.info(`Server starting on port ${port} (${protocol}://localhost:${port})`);
         }).catch((err) => {
             console.error(err.toString());
             console.info('Unable to start the server, end of execution');
