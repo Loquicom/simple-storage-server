@@ -6,6 +6,10 @@ process.on('SIGINT', function () {
     process.exit();
 });
 
+// Chargement fichier config
+const config = require('./src/config');
+const protocol = (config.https) ? 'https' : 'http';
+
 // Gestion des commandes et des options de l'application
 const argv = require('yargs')
     .command('serve [port]', 'start the Loquicompta server', (yargs) => {
@@ -19,7 +23,7 @@ const argv = require('yargs')
     })
     .option('port', {
         alias: 'p',
-        default: 80
+        default: (config.https) ? 443 : 80
     })
     .option('auth', {
         default: true
@@ -33,10 +37,6 @@ const argv = require('yargs')
     .describe('v', 'show server informations')
     .describe('s', 'show sql informations')
     .argv;
-
-// Chargement fichier config
-const config = require('./src/config');
-const protocol = (config.https) ? 'https' : 'http';
 
 // Creation variable globale
 if (!config.auth) {
