@@ -101,12 +101,12 @@ Db.prototype.listFile = function (username) {
     });
 };
 
-Db.prototype.fileExist = function (username, filename) {
-    if (typeof username !== 'string' || typeof filename !== 'string') {
+Db.prototype.fileExist = function (username, fileId) {
+    if (typeof username !== 'string' || typeof fileId !== 'string') {
         return false;
     }
     return new Promise((resolve, reject) => {
-        this.db.all(sql.fileExist, [username, filename], (err, rows) => {
+        this.db.all(sql.fileExist, [username, fileId], (err, rows) => {
             if (err) {
                 if (global.verbose) {
                     console.error(err);
@@ -184,15 +184,13 @@ Db.prototype.addFile = function (username, filename, data) {
     });
 };
 
-Db.prototype.updateFile = function (username, filename, data) {
-    if (typeof username !== 'string' || typeof filename !== 'string' || typeof data !== 'string') {
+Db.prototype.updateFile = function (username, fileId, data) {
+    if (typeof username !== 'string' || typeof fileId !== 'string' || typeof data !== 'string') {
         return false;
     }
-    this.fileExist(username, filename).then((result) => {
+    this.fileExist(username, fileId).then((result) => {
         if (result) {
-            this.getFile(username, filename).then((file) => {
-                this._execute(sql.updateFile, [data, file.hash]);
-            });
+            this._execute(sql.updateFile, [data, fileId]);
         }
     });
     return true;

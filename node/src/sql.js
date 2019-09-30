@@ -43,7 +43,7 @@ module.exports.fileExist = 'SELECT count(*) as nb FROM FILE f '
     + 'INNER JOIN USERFILE uf on f.fi_id = uf.fi_id '
     + 'INNER JOIN USER u on uf.us_id = u.us_id '
     + 'WHERE us_name = lower(?) '
-    + 'AND fi_name = lower(?);';
+    + 'AND fi_hash = ?;';
 
 module.exports.getFile = 'SELECT fi_hash as hash, fi_name as name, fi_data as data FROM FILE f '
     + 'INNER JOIN USERFILE uf on f.fi_id = uf.fi_id '

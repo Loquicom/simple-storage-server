@@ -262,7 +262,23 @@ const router = class Router {
         }]);
 
         this.app.put('/save/:file', [this.verbose, this.verifyAuth, (req, res) => {
+            if (req.body.data === undefined || req.params.file === undefined) {
+                res.json(error(ERR_REQUEST));
+                return;
+            }
+            // Si les données sont dans un fichier
+            if (global.storage === 'file') {
 
+            }
+            // Sinon on modifie la base
+            else {
+                let result = db.updateFile(req.body.user, req.params.file, req.body.data);
+                if (result === false) {
+                    res.json(error(ERR_SERV));
+                    return;
+                }
+                res.json(success({fileId: req.params.file}));
+            }
         }]);
 
         /*this.app.post('/save/:file?', [this.verbose, this.verifyAuth, (req, res) => {

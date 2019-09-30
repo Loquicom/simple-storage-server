@@ -208,8 +208,7 @@ Reponse :
 ```json
 {
     "success": true,
-    "fileid": "string",
-    "filename": "string"
+    "fileid": "string"
 }
 ```
 
