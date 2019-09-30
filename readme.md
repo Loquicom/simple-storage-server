@@ -10,9 +10,9 @@ Lors de l'utilisation de l'api si la requete est invalide le retour est de la fo
 
 ```json
 {
-    success: false,
-    code: int,
-    message: "string"
+    "success": false,
+    "code": number,
+    "message": "string"
 }
 ```
 
@@ -31,11 +31,11 @@ Les codes d'erreurs sont les suivants :
 
 Indique si le serveur necessite un mot de passe pour accèder aux fichiers
 
+Reponse :
 ```json
-// Reponse
 {
-    success: true,
-    authentication: boolean
+    "success": true,
+    "authentication": boolean
 }
 ```
 
@@ -45,19 +45,21 @@ Indique si le serveur necessite un mot de passe pour accèder aux fichiers
 
 Inscrit un utilisateur sur le serveur
 
+Le champ user correspond au nom de l'utilisateur
+
+Requete :
 ```json
-// Requete
 {
-    user: "string",
-    password: "string"
-}
-// Response
-{
-    success: true
+    "user": "string",
+    "password": "string"
 }
 ```
-
-
+Reponse :
+```json
+{
+    "success": true
+}
+```
 
 ------
 
@@ -65,16 +67,21 @@ Inscrit un utilisateur sur le serveur
 
 Connexion de l'utilisateur et retourne un jeton de connexion. Le jeton de connexion est valide 12h00 après son émission.
 
+Le champ user correspond au nom de l'utilisateur
+
+Requete :
 ```json
-// Requete
 {
-    user: "string",
-    password: "string"
+    "user": "string",
+    "password": "string"
 }
-// Reponse
+```
+
+Reponse :
+```json
 {
-    success: true,
-    token: "string"
+    "success": true,
+    "token": "string"
 }
 ```
 
@@ -84,20 +91,23 @@ Connexion de l'utilisateur et retourne un jeton de connexion. Le jeton de connex
 
 Permet de tester la validitée d'un jeton émit lors de la connexion
 
+Le champ user correspond au nom de l'utilisateur
+
+Requete :
 ```json
-// Requete
 {
-    user: "string", // Username
-    token: "string"
-}
-// Reponse
-{
-    success: true,
-    valid: boolean
+    "user": "string",
+    "token": "string"
 }
 ```
 
-
+Reponse :
+```json
+{
+    "success": true,
+    "valid": boolean
+}
+```
 
 ------
 
@@ -105,17 +115,22 @@ Permet de tester la validitée d'un jeton émit lors de la connexion
 
 Liste les fichiers disponible pour l'utilisateur. La valeur token n'est necessaire que si l'authentification est activée.
 
+Le champ user correspond au nom de l'utilisateur
+
+Requete : 
 ```json
-// Requete
 {
-    user: "string", // Username
-    token: "string"
+    "user": "string",
+    "token": "string"
 }
-// Reponse
+```
+
+Reponse :
+```json
 {
-    success: true,
-    total: number,
-    list: ["fileId1", "fileId2", ...]
+    "success": true,
+    "total": number,
+    "list": ["fileId1", "fileId2", ...]
 }
 ```
 
@@ -125,18 +140,23 @@ Liste les fichiers disponible pour l'utilisateur. La valeur token n'est necessai
 
 Récupère un fichier. Remplacer {file} par l'id du fichier à récupèrer. La valeur token n'est necessaire que si l'authentification est activée.
 
+Le champ user correspond au nom de l'utilisateur
+
+Requete : 
 ```json
-// Requete
 {
-    user: "string", // Username
-    token: "string"
+    "user": "string",
+    "token": "string"
 }
-// Reponse
+```
+
+Reponse :
+```json
 {
-    success: true,
-    fileid: "string",
-    filename: "string",
-    data: "string"
+    "success": true,
+    "fileid": "string",
+    "filename": "string",
+    "data": "string"
 }
 ```
 
@@ -145,6 +165,7 @@ Récupère un fichier. Remplacer {file} par l'id du fichier à récupèrer. La v
 `POST /save`
 
 Sauvegarde un nouveau fichier. La valeur token n'est necessaire que si l'authentification est activée. 
+
 Le champ user correspond au nom de l'utilisateur et le champ data au contenue du fichier
 
 Requete :
@@ -156,6 +177,7 @@ Requete :
     "data": "string"
 }
 ```
+
 Reponse :
 ```json
 {
@@ -171,18 +193,23 @@ Reponse :
 
 Sauvegarde un fichier. Remplacer {fileId} par l'id du fichier à sauvegarder. La valeur token n'est necessaire que si l'authentification est activée.
 
+Le champ user correspond au nom de l'utilisateur et le champ data au contenue du fichier
+
+Requete :
 ```json
-// Requete
 {
-    user: "string", // Username
-    token: "string",
-    data: "string" // File content
+    "user": "string",
+    "token": "string",
+    "data": "string"
 }
-// Reponse
+```
+
+Reponse :
+```json
 {
-    success: true,
-    fileid: "string",
-    filename: "string"
+    "success": true,
+    "fileid": "string",
+    "filename": "string"
 }
 ```
 
@@ -192,15 +219,20 @@ Sauvegarde un fichier. Remplacer {fileId} par l'id du fichier à sauvegarder. La
 
 Supprime un fichier. Remplacer {file} par l'id du fichier à récupèrer. La valeur token n'est necessaire que si l'authentification est activée.
 
+Le champ user correspond au nom de l'utilisateur
+
+Requete :
 ```json
-// Requete
 {
-    user: "string" // Username
+    user: "string"
     token: "string"
 }
-// Reponse
+```
+
+Reponse :
+```json
 {
-    success: true
+    "success": true
 }
 ```
 
