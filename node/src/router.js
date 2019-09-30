@@ -268,7 +268,29 @@ const router = class Router {
             }
             // Si les données sont dans un fichier
             if (global.storage === 'file') {
-
+                let promise = db.getFile(req.body.user, req.params.file);
+                if (promise === false) {
+                    res.json(error(ERR_SERV));
+                    return;
+                }
+                promise.then((file) => {
+                    if (file === false) {
+                        res.json(error(ERR_FILE));
+                    } else if (!fs.existsSync(file.data)) {
+                        res.json(error(ERR_FILE));
+                    } else {
+                        fs.writeFile(file.data, req.body.data, (err) => {
+                            if (err) {
+                                if (global.verbose) {
+                                    console.error(err);
+                                }
+                                res.json(error(ERR_SERV));
+                            } else {
+                                res.json(success({fileId: req.params.file}));
+                            }
+                        });
+                    }
+                });
             }
             // Sinon on modifie la base
             else {
@@ -280,22 +302,6 @@ const router = class Router {
                 res.json(success({fileId: req.params.file}));
             }
         }]);
-
-        /*this.app.post('/save/:file?', [this.verbose, this.verifyAuth, (req, res) => {
-            if (req.params.file === undefined) {
-                if (req.body.file === undefined || req.body.data === undefined) {
-                    res.json(error(ERR_REQUEST));
-                } else {
-                    this.newFile(req.body.user, req.body.file, req.body.data, res);
-                }
-            } else {
-                if (req.body.data === undefined) {
-                    res.json(error(ERR_REQUEST));
-                } else {
-                    this.saveFile(req.body.user, req.body.data, res);
-                }
-            }
-        }]);*/
 
         this.app.put('/rename/:file', [this.verbose, this.verifyAuth, (req, res) => {
 
