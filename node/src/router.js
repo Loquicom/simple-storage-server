@@ -281,7 +281,7 @@ const router = class Router {
             }
         }]);*/
 
-        this.app.post('/rename/:file', [this.verbose, this.verifyAuth, (req, res) => {
+        this.app.put('/rename/:file', [this.verbose, this.verifyAuth, (req, res) => {
 
         }]);
 
