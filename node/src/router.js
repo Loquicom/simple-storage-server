@@ -102,46 +102,7 @@ const router = class Router {
     /* --- Definitions des routes --- */
 
     newFile(user, file, data, res) {
-        let promise, filename;
-        // Si on sauvegarde les données dans des fichiers, generation du chemin
-        if (global.storage === 'file') {
-            let hash = Date.now() + '-' + req.body.user + '-' + req.params.file;
-            hash = crypto.createHash('md5').update(hash).digest('base64');
-            hash = hash.replace(/=/g, '').replace(/\//g, '');
-            filename = './data/' + hash + '.fdata';
-            promise = db.addFile(user, file, filename);
-        }
-        // Sinon om met directement en base
-        else {
-            promise = db.addFile(user, file, data);
-        }
-        if (promise === false) {
-            res.json(error(ERR_REQUEST));
-            return;
-        }
-        promise.then((fileId) => {
-            if (fileId === false) {
-                res.json(ERR_SERV);
-            } else {
-                // Si en mode fichier stockage dans un fichier
-                if ((global.storage === 'file')) {
-                    fs.writeFile(filename, data, (err) => {
-                        if (err) {
-                            if (global.verbose) {
-                                console.error(err);
-                            }
-                            res.json(error(ERR_SERV));
-                        } else {
-                            res.json(success({fileId: fileId, fileName: file}));
-                        }
-                    });
-                }
-                // Le fichier est directement sauvegarder en base
-                else {
-                    res.json(success({fileId: fileId, fileName: file}));
-                }
-            }
-        });
+
     }
 
     saveFile() {
@@ -190,7 +151,7 @@ const router = class Router {
             });
         }]);
 
-        this.app.post('/token', [this.verbose, (req, res) => {
+        this.app.get('/token', [this.verbose, (req, res) => {
             if (req.body.user === undefined || req.body.token === undefined) {
                 res.json(error(ERR_REQUEST));
                 return;
@@ -198,7 +159,7 @@ const router = class Router {
             res.json(success({valid: auth.verify(req.body.user, req.body.token)}));
         }]);
 
-        this.app.post('/list', [this.verbose, this.verifyAuth, (req, res) => {
+        this.app.get('/list', [this.verbose, this.verifyAuth, (req, res) => {
             const promise = db.listFile(req.body.user);
             if (promise === false) {
                 res.json(error(ERR_REQUEST));
@@ -216,7 +177,7 @@ const router = class Router {
             });
         }]);
 
-        this.app.post('/get/:file', [this.verbose, this.verifyAuth, (req, res) => {
+        this.app.get('/:file', [this.verbose, this.verifyAuth, (req, res) => {
             const promise = db.getFile(req.body.user, req.params.file);
             if (promise === false) {
                 res.json(error(ERR_REQUEST));
@@ -253,7 +214,57 @@ const router = class Router {
             });
         }]);
 
-        this.app.post('/save/:file?', [this.verbose, this.verifyAuth, (req, res) => {
+        this.app.post('/save', [this.verbose, this.verifyAuth, (req, res) => {
+            const user = req.body.user;
+            const file = req.body.file;
+            const data = req.body.data;
+            let promise, filename;
+            // Si on sauvegarde les données dans des fichiers, generation du chemin
+            if (global.storage === 'file') {
+                let hash = Date.now() + '-' + req.body.user + '-' + req.params.file;
+                hash = crypto.createHash('md5').update(hash).digest('base64');
+                hash = hash.replace(/=/g, '').replace(/\//g, '');
+                filename = './data/' + hash + '.fdata';
+                promise = db.addFile(user, file, filename);
+            }
+            // Sinon om met directement en base
+            else {
+                promise = db.addFile(user, file, data);
+            }
+            if (promise === false) {
+                res.json(error(ERR_REQUEST));
+                return;
+            }
+            promise.then((fileId) => {
+                if (fileId === false) {
+                    res.json(ERR_SERV);
+                } else {
+                    // Si en mode fichier stockage dans un fichier
+                    if ((global.storage === 'file')) {
+                        fs.writeFile(filename, data, (err) => {
+                            if (err) {
+                                if (global.verbose) {
+                                    console.error(err);
+                                }
+                                res.json(error(ERR_SERV));
+                            } else {
+                                res.json(success({fileId: fileId, fileName: file}));
+                            }
+                        });
+                    }
+                    // Le fichier est directement sauvegarder en base
+                    else {
+                        res.json(success({fileId: fileId, fileName: file}));
+                    }
+                }
+            });
+        }]);
+
+        this.app.put('/save/:file', [this.verbose, this.verifyAuth, (req, res) => {
+
+        }]);
+
+        /*this.app.post('/save/:file?', [this.verbose, this.verifyAuth, (req, res) => {
             if (req.params.file === undefined) {
                 if (req.body.file === undefined || req.body.data === undefined) {
                     res.json(error(ERR_REQUEST));
@@ -267,6 +278,14 @@ const router = class Router {
                     this.saveFile(req.body.user, req.body.data, res);
                 }
             }
+        }]);*/
+
+        this.app.post('/rename/:file', [this.verbose, this.verifyAuth, (req, res) => {
+
+        }]);
+
+        this.app.delete('/:file', [this.verbose, this.verifyAuth, (req, res) => {
+
         }]);
 
     }

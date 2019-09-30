@@ -87,7 +87,7 @@ Reponse :
 
 ------
 
-`POST /token`
+`GET /token`
 
 Permet de tester la validitée d'un jeton émit lors de la connexion
 
@@ -111,7 +111,7 @@ Reponse :
 
 ------
 
-`POST /list`
+`GET /list`
 
 Liste les fichiers disponible pour l'utilisateur. La valeur token n'est necessaire que si l'authentification est activée.
 
@@ -136,7 +136,7 @@ Reponse :
 
 ------
 
-`POST /get/{fileId}`
+`GET /{fileId}`
 
 Récupère un fichier. Remplacer {file} par l'id du fichier à récupèrer. La valeur token n'est necessaire que si l'authentification est activée.
 
@@ -189,7 +189,7 @@ Reponse :
 
 ------
 
-`POST /save/{fileId}`
+`PUT /save/{fileId}`
 
 Sauvegarde un fichier. Remplacer {fileId} par l'id du fichier à sauvegarder. La valeur token n'est necessaire que si l'authentification est activée.
 
@@ -241,9 +241,9 @@ Reponse :
 
 ------
 
-`DELETE  /delete/{file}`
+`DELETE  /{fileId}`
 
-Supprime un fichier. Remplacer {file} par l'id du fichier à récupèrer. La valeur token n'est necessaire que si l'authentification est activée.
+Supprime un fichier. Remplacer {fileId} par l'id du fichier à récupèrer. La valeur token n'est necessaire que si l'authentification est activée.
 
 Le champ user correspond au nom de l'utilisateur
 
