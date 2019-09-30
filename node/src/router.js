@@ -72,7 +72,18 @@ const router = class Router {
             res.json(error(ERR_TOKEN));
             return;
         }
-        next();
+        let promise = db.userExist(req.body.user);
+        if (promise === false) {
+            res.json(error(ERR_REQUEST));
+            return;
+        }
+        promise.then((exist) => {
+            if (exist) {
+                next();
+            } else {
+                res.json(error(ERR_UNKNOW));
+            }
+        });
     }
 
     verbose(req, res, next) {
