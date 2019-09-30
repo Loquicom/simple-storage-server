@@ -142,9 +142,34 @@ Récupère un fichier. Remplacer {file} par l'id du fichier à récupèrer. La v
 
 ------
 
-`POST /save/{fileName}`
+`POST /save`
 
-Sauvegarde un fichier. Remplacer {fileName} par le nom du fichier à sauvegarder. La valeur token n'est necessaire que si l'authentification est activée.
+Sauvegarde un nouveau fichier. La valeur token n'est necessaire que si l'authentification est activée. 
+Le champ user correspond au nom de l'utilisateur et le champ data au contenue du fichier
+
+Requete :
+```json
+{
+    "user": "string",
+    "token": "string",
+    "file": "string",
+    "data": "string"
+}
+```
+Reponse :
+```json
+{
+    "success": true,
+    "fileid": "string",
+    "filename": "string"
+}
+```
+
+------
+
+`POST /save/{fileId}`
+
+Sauvegarde un fichier. Remplacer {fileId} par l'id du fichier à sauvegarder. La valeur token n'est necessaire que si l'authentification est activée.
 
 ```json
 // Requete
