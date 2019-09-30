@@ -215,9 +215,10 @@ const router = class Router {
         }]);
 
         this.app.post('/save', [this.verbose, this.verifyAuth, (req, res) => {
-            const user = req.body.user;
-            const file = req.body.file;
-            const data = req.body.data;
+            if (req.body.file === undefined || req.body.data === undefined) {
+                res.json(error(ERR_REQUEST));
+                return;
+            }
             let promise, filename;
             // Si on sauvegarde les données dans des fichiers, generation du chemin
             if (global.storage === 'file') {
@@ -225,11 +226,11 @@ const router = class Router {
                 hash = crypto.createHash('md5').update(hash).digest('base64');
                 hash = hash.replace(/=/g, '').replace(/\//g, '');
                 filename = './data/' + hash + '.fdata';
-                promise = db.addFile(user, file, filename);
+                promise = db.addFile(req.body.user, req.body.file, filename);
             }
             // Sinon om met directement en base
             else {
-                promise = db.addFile(user, file, data);
+                promise = db.addFile(req.body.user, req.body.file, req.body.data);
             }
             if (promise === false) {
                 res.json(error(ERR_REQUEST));
@@ -241,20 +242,20 @@ const router = class Router {
                 } else {
                     // Si en mode fichier stockage dans un fichier
                     if ((global.storage === 'file')) {
-                        fs.writeFile(filename, data, (err) => {
+                        fs.writeFile(filename, req.body.data, (err) => {
                             if (err) {
                                 if (global.verbose) {
                                     console.error(err);
                                 }
                                 res.json(error(ERR_SERV));
                             } else {
-                                res.json(success({fileId: fileId, fileName: file}));
+                                res.json(success({fileId: fileId, fileName: req.body.file}));
                             }
                         });
                     }
                     // Le fichier est directement sauvegarder en base
                     else {
-                        res.json(success({fileId: fileId, fileName: file}));
+                        res.json(success({fileId: fileId, fileName: req.body.file}));
                     }
                 }
             });
