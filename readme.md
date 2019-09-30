@@ -215,6 +215,32 @@ Reponse :
 
 ------
 
+`PUT /rename/{fileId}`
+
+Renomme un fichier existant
+
+Le champ user correspond au nom de l'utilisateur et le champ name au nouveau nom
+
+Requete :
+```json
+{
+    "user": "string",
+    "token": "string",
+    "name": "string"
+}
+```
+
+Reponse :
+```json
+{
+    "success": true,
+    "fileId": "string",
+    "filename": "string"
+}
+```
+
+------
+
 `DELETE  /delete/{file}`
 
 Supprime un fichier. Remplacer {file} par l'id du fichier à récupèrer. La valeur token n'est necessaire que si l'authentification est activée.
