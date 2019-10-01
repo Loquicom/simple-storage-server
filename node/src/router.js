@@ -312,12 +312,18 @@ const router = class Router {
         }
         // Sinon on modifie la base
         else {
-            let result = db.updateFile(req.body.user, req.params.file, req.body.data);
-            if (result === false) {
-                res.json(error(ERR_SERV));
+            let promise = db.updateFile(req.body.user, req.params.file, req.body.data);
+            if (promise === false) {
+                res.json(error(ERR_REQUEST));
                 return;
             }
-            res.json(success({fileId: req.params.file}));
+            promise.then((result) => {
+                if (result) {
+                    res.json(success({fileId: req.params.file}));
+                } else {
+                    res.json(error(ERR_FILE));
+                }
+            });
         }
     }
 
@@ -335,7 +341,7 @@ const router = class Router {
             if (result) {
                 res.json(success({fileId: req.params.file, filename: req.body.name}));
             } else {
-                res.json(error(ERR_UNKNOW));
+                res.json(error(ERR_FILE));
             }
         });
     }
