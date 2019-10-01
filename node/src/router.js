@@ -12,6 +12,7 @@ const ERR_TOKEN = 4;
 const ERR_SERV = 5;
 const ERR_FILE = 6;
 const ERR_REGISTER = 7;
+const ERR_NOTFOUND = 404;
 
 // Fonctions reponses
 function error(code) {
@@ -40,6 +41,9 @@ function error(code) {
             break;
         case ERR_REGISTER:
             answer.message = 'User already exist';
+            break;
+        case ERR_NOTFOUND:
+            answer.message = 'Page not found';
             break;
         default:
             answer.message = 'Unknow error';
@@ -92,10 +96,10 @@ const router = class Router {
     verbose(req, res, next) {
         if (global.verbose) {
             const nbProp = Object.keys(req.body);
-            console.log(`\nCall ${req.route.path} with ${nbProp.length} parameter(s)`);
+            console.info(`\nCall ${req.method} ${req.route.path} with ${nbProp.length} parameter(s)`);
             if (nbProp.length > 0) {
                 for (let prop in req.body) {
-                    console.log(`   ${prop}: ${req.body[prop]}`);
+                    console.info(`   ${prop}: ${req.body[prop]}`);
                 }
             }
         }
@@ -116,6 +120,7 @@ const router = class Router {
         this.app.put('/save/:file', [this.verbose, this.verifyAuth, this.updateFile]);
         this.app.put('/rename/:file', [this.verbose, this.verifyAuth, this.renameFile]);
         this.app.delete('/:file', [this.verbose, this.verifyAuth, this.deleteFile]);
+        this.app.use(this.notFound);
     }
 
     getDocumentation(req, res) {
@@ -365,22 +370,19 @@ const router = class Router {
         });
     }
 
+    notFound(req, res) {
+        if (global.verbose) {
+            const nbProp = Object.keys(req.body);
+            console.info(`\nCall unknown page ${req.method} ${req.url} with ${nbProp.length} parameter(s)`);
+            if (nbProp.length > 0) {
+                for (let prop in req.body) {
+                    console.info(`   ${prop}: ${req.body[prop]}`);
+                }
+            }
+        }
+        res.json(error(ERR_NOTFOUND));
+    }
+
 };
 
 module.exports = router;
-
-
-/*
-app.get('/', function (req, res) {
-    res.send('Hello World!');
-});
-
-app.get('/test/:val?', function (req, res) {
-    console.log(req.params.val);
-    res.send('Val = ' + req.params.val);
-});
-
-app.get(/.*aze$/, function (req, res) {
-    res.send('URL end with aze');
-})
-*/
