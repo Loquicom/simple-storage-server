@@ -1,6 +1,7 @@
 {
   "application": "simple storage server",
   "ver": "1.0.0",
+  "wip": true,
   "entrypoint": {
     "GET": {
       "/": {
@@ -9,7 +10,7 @@
         "return": "description of the API"
       },
       "/authentication": {
-        "desc": "",
+        "desc": "indicates whether authentication is required on the server",
         "params": null,
         "return": [
           {
@@ -18,6 +19,30 @@
           },
           {
             "key": "authentication",
+            "value": "boolean"
+          }
+        ]
+      },
+      "/token": {
+        "desc": "indicates whether the token is valid",
+        "params": [
+          {
+            "key": "user",
+            "value": "string",
+            "desc": "name of the user"
+          },
+          {
+            "key": "token",
+            "value": "string"
+          }
+        ],
+        "return": [
+          {
+            "key": "success",
+            "value": true
+          },
+          {
+            "key": "valid",
             "value": "boolean"
           }
         ]
@@ -42,6 +67,31 @@
           {
             "key": "success",
             "value": true
+          }
+        ]
+      },
+      "/login": {
+        "desc": "Connect a user",
+        "params": [
+          {
+            "key": "user",
+            "value": "string",
+            "desc": "name of the user"
+          },
+          {
+            "key": "password",
+            "value": "string",
+            "desc": "password of the new user"
+          }
+        ],
+        "return": [
+          {
+            "key": "success",
+            "value": true
+          },
+          {
+            "key": "token",
+            "value": "string"
           }
         ]
       }
