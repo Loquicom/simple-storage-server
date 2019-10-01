@@ -45,7 +45,7 @@ module.exports.fileExist = 'SELECT count(*) as nb FROM FILE f '
     + 'WHERE us_name = lower(?) '
     + 'AND fi_hash = ?;';
 
-module.exports.getFile = 'SELECT fi_hash as hash, fi_name as name, fi_data as data FROM FILE f '
+module.exports.getFile = 'SELECT fi_id as id, fi_hash as hash, fi_name as name, fi_data as data FROM FILE f '
     + 'INNER JOIN USERFILE uf on f.fi_id = uf.fi_id '
     + 'INNER JOIN USER u on uf.us_id = u.us_id '
     + 'WHERE us_name = lower(?) '
@@ -68,3 +68,7 @@ module.exports.lastId = 'SELECT last_insert_rowid() as lastId;';
 
 // Modifie le nom du fichier
 module.exports.renameFile = 'UPDATE FILE SET fi_name = lower(?) WHERE fi_hash = ?';
+
+module.exports.deleteUserFile = 'DELETE FROM USERFILE WHERE fi_id = ?';
+
+module.exports.deleteFile = 'DELETE FROM FILE WHERE fi_id = ?';

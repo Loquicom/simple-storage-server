@@ -347,7 +347,23 @@ const router = class Router {
     }
 
     deleteFile(req, res) {
+        if (req.params.file === undefined) {
+            res.json(error(ERR_REQUEST));
+            return;
+        }
+        let promise = db.deleteFile(req.params.user, req.params.file);
+        if (promise === false) {
+            res.json(error(ERR_REQUEST));
+            return;
+        }
+        promise.then((result) => {
+            if (result) {
+                res.json(success());
+            } else {
 
+                res.json(error(ERR_FILE));
+            }
+        });
     }
 
 };

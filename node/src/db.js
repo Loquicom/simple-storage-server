@@ -225,6 +225,28 @@ Db.prototype.renameFile = function (username, fileId, name) {
     });
 };
 
+
+Db.prototype.deleteFile = function (username, fileId) {
+    if (typeof username !== 'string' || typeof fileId !== 'string') {
+        return false;
+    }
+    // Supprime le fichier
+    return new Promise((resolve, reject) => {
+        this.getFile(username, fileId).then((file) => {
+            if (file === false) {
+                if (gobal.verbose) {
+                    console.info(`File ${fileId} for user ${username} not found`);
+                }
+                resolve(false);
+            } else {
+                this._execute(sql.deleteUserFile, file.id);
+                this._execute(sql.deleteFile, file.id);
+                resolve(true);
+            }
+        });
+    });
+};
+
 Db.prototype._execute = function (sql, params) {
     try {
         if (params !== undefined && params !== null) {
