@@ -2,6 +2,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 const auth = require('./auth');
 const db = require('./db');
+const doc = require('../data/documentation.json');
 
 // Constante d'erreur
 const ERR_REQUEST = 1;
@@ -10,6 +11,7 @@ const ERR_UNKNOW = 3;
 const ERR_TOKEN = 4;
 const ERR_SERV = 5;
 const ERR_FILE = 6;
+const ERR_REGISTER = 7;
 
 // Fonctions reponses
 function error(code) {
@@ -36,6 +38,9 @@ function error(code) {
         case ERR_FILE:
             answer.message = 'File not found';
             break;
+        case ERR_REGISTER:
+            answer.message = 'User already exist';
+            break;
         default:
             answer.message = 'Unknow error';
     }
@@ -57,12 +62,10 @@ const router = class Router {
 
     constructor(app) {
         this.app = app;
-        this.doc = require('../data/documentation.json');
     }
 
-    /* --- Helper function --- */
+    /* --- Fonctions pre traitement --- */
 
-    // Fonctions de traitement pour les routes
     verifyAuth(req, res, next) {
         if (req.body.user === undefined || req.body.token === undefined) {
             res.json(error(ERR_REQUEST));
@@ -101,215 +104,228 @@ const router = class Router {
 
     /* --- Definitions des routes --- */
 
-    newFile(user, file, data, res) {
-
-    }
-
-    saveFile() {
-
-    }
-
     route() {
-        this.app.get('/', [this.verbose, (req, res) => {
-            res.json(this.doc);
-        }]);
+        this.app.get('/', [this.verbose, this.getDocumentation]);
+        this.app.get('/authentication', [this.verbose, this.authenticationActivated]);
+        this.app.post('/register', [this.verbose, this.register]);
+        this.app.post('/login', [this.verbose, this.login]);
+        this.app.get('/token', [this.verbose, this.testToken]);
+        this.app.get('/list', [this.verbose, this.verifyAuth, this.listFile]);
+        this.app.get('/:file', [this.verbose, this.verifyAuth, this.getFile]);
+        this.app.post('/save', [this.verbose, this.verifyAuth, this.newFile]);
+        this.app.put('/save/:file', [this.verbose, this.verifyAuth, this.updateFile]);
+        this.app.put('/rename/:file', [this.verbose, this.verifyAuth, this.renameFile]);
+        this.app.delete('/:file', [this.verbose, this.verifyAuth, this.deleteFile]);
+    }
 
-        this.app.get('/authentication', [this.verbose, (req, res) => {
-            res.json(success({authentication: auth.isActivated()}));
-        }]);
+    getDocumentation(req, res) {
+        res.json(doc);
+    }
 
-        this.app.post('/register', [this.verbose, (req, res) => {
-            if (req.body.user === undefined || req.body.password === undefined) {
-                res.json(error(ERR_REQUEST));
-                return;
-            }
-            const passHash = auth.passwordHash(req.body.password);
-            db.addUser(req.body.user, passHash);
-            return res.json(success());
-        }]);
+    authenticationActivated(req, res) {
+        res.json(success({authentication: auth.isActivated()}));
+    }
 
-        this.app.post('/login', [this.verbose, (req, res) => {
-            if (req.body.user === undefined || req.body.password === undefined) {
-                res.json(error(ERR_REQUEST));
-                return;
+    register(req, res) {
+        if (req.body.user === undefined || req.body.password === undefined) {
+            res.json(error(ERR_REQUEST));
+            return;
+        }
+        const passHash = auth.passwordHash(req.body.password);
+        let promise = db.addUser(req.body.user, passHash);
+        if (promise === false) {
+            res.json(error(ERR_SERV));
+            return;
+        }
+        promise.then((result) => {
+            if (result) {
+                return res.json(success());
+            } else {
+                return res.json(error(ERR_REGISTER));
             }
-            const promise = db.getUser(req.body.user);
-            if (promise === false) {
-                res.json(error(ERR_REQUEST));
-                return;
-            }
-            promise.then((user) => {
-                if (user === undefined) {
-                    res.json(error(ERR_UNKNOW));
+        });
+    }
+
+    login(req, res) {
+        if (req.body.user === undefined || req.body.password === undefined) {
+            res.json(error(ERR_REQUEST));
+            return;
+        }
+        const promise = db.getUser(req.body.user);
+        if (promise === false) {
+            res.json(error(ERR_REQUEST));
+            return;
+        }
+        promise.then((user) => {
+            if (user === undefined) {
+                res.json(error(ERR_UNKNOW));
+            } else {
+                if (auth.passwordVerify(req.body.password, user.pass)) {
+                    res.json(success({token: auth.generateToken(req.body.user)}));
                 } else {
-                    if (auth.passwordVerify(req.body.password, user.pass)) {
-                        res.json(success({token: auth.generateToken(req.body.user)}));
-                    } else {
-                        res.json(error(ERR_AUTH));
+                    res.json(error(ERR_AUTH));
+                }
+            }
+        });
+    }
+
+    testToken(req, res) {
+        if (req.body.user === undefined || req.body.token === undefined) {
+            res.json(error(ERR_REQUEST));
+            return;
+        }
+        res.json(success({valid: auth.verify(req.body.user, req.body.token)}));
+    }
+
+    listFile(req, res) {
+        const promise = db.listFile(req.body.user);
+        if (promise === false) {
+            res.json(error(ERR_REQUEST));
+            return;
+        }
+        promise.then((list) => {
+            if (list === false) {
+                res.json(error(ERR_SERV));
+            } else {
+                res.json(success({
+                    total: list.length,
+                    list: list
+                }));
+            }
+        });
+    }
+
+    newFile(req, res) {
+        if (req.body.file === undefined || req.body.data === undefined) {
+            res.json(error(ERR_REQUEST));
+            return;
+        }
+        let promise, filename;
+        // Si on sauvegarde les données dans des fichiers, generation du chemin
+        if (global.storage === 'file') {
+            let hash = Date.now() + '-' + req.body.user + '-' + req.params.file;
+            hash = crypto.createHash('md5').update(hash).digest('base64');
+            hash = hash.replace(/=/g, '').replace(/\//g, '');
+            filename = './data/' + hash + '.fdata';
+            promise = db.addFile(req.body.user, req.body.file, filename);
+        }
+        // Sinon om met directement en base
+        else {
+            promise = db.addFile(req.body.user, req.body.file, req.body.data);
+        }
+        if (promise === false) {
+            res.json(error(ERR_REQUEST));
+            return;
+        }
+        promise.then((fileId) => {
+            if (fileId === false) {
+                res.json(ERR_SERV);
+            } else {
+                // Si en mode fichier stockage dans un fichier
+                if ((global.storage === 'file')) {
+                    fs.writeFile(filename, req.body.data, (err) => {
+                        if (err) {
+                            if (global.verbose) {
+                                console.error(err);
+                            }
+                            res.json(error(ERR_SERV));
+                        } else {
+                            res.json(success({fileId: fileId, fileName: req.body.file}));
+                        }
+                    });
+                }
+                // Le fichier est directement sauvegarder en base
+                else {
+                    res.json(success({fileId: fileId, fileName: req.body.file}));
+                }
+            }
+        });
+    }
+
+    getFile(req, res) {
+        const promise = db.getFile(req.body.user, req.params.file);
+        if (promise === false) {
+            res.json(error(ERR_REQUEST));
+            return;
+        }
+        promise.then((file) => {
+            // Erreur
+            if (file === false) {
+                res.json(error(ERR_SERV));
+            } else // Le fichier n'existe pas
+            if (file === null) {
+                res.json(error(ERR_FILE));
+            }
+            // Création reponse commune
+            else {
+                let result = {
+                    fileid: file.fi_hash,
+                    filename: file.fi_name
+                };
+                // Recupération données fichier
+                if (global.storage === 'database') {
+                    result.data = file.data;
+                    res.json(success(result));
+                } else {
+                    if (!fs.existsSync(file.data)) {
+                        res.json(error(ERR_FILE));
                     }
+                    fs.readFile(file.data, (err, data) => {
+                        result.data = data.toString();
+                        res.json(success(result));
+                    });
                 }
-            });
-        }]);
-
-        this.app.get('/token', [this.verbose, (req, res) => {
-            if (req.body.user === undefined || req.body.token === undefined) {
-                res.json(error(ERR_REQUEST));
-                return;
             }
-            res.json(success({valid: auth.verify(req.body.user, req.body.token)}));
-        }]);
+        });
+    }
 
-        this.app.get('/list', [this.verbose, this.verifyAuth, (req, res) => {
-            const promise = db.listFile(req.body.user);
+    updateFile(req, res) {
+        if (req.body.data === undefined || req.params.file === undefined) {
+            res.json(error(ERR_REQUEST));
+            return;
+        }
+        // Si les données sont dans un fichier
+        if (global.storage === 'file') {
+            let promise = db.getFile(req.body.user, req.params.file);
             if (promise === false) {
-                res.json(error(ERR_REQUEST));
-                return;
-            }
-            promise.then((list) => {
-                if (list === false) {
-                    res.json(error(ERR_SERV));
-                } else {
-                    res.json(success({
-                        total: list.length,
-                        list: list
-                    }));
-                }
-            });
-        }]);
-
-        this.app.get('/:file', [this.verbose, this.verifyAuth, (req, res) => {
-            const promise = db.getFile(req.body.user, req.params.file);
-            if (promise === false) {
-                res.json(error(ERR_REQUEST));
+                res.json(error(ERR_SERV));
                 return;
             }
             promise.then((file) => {
-                // Erreur
                 if (file === false) {
-                    res.json(error(ERR_SERV));
-                } else // Le fichier n'existe pas
-                if (file === null) {
                     res.json(error(ERR_FILE));
-                }
-                // Création reponse commune
-                else {
-                    let result = {
-                        fileid: file.fi_hash,
-                        filename: file.fi_name
-                    };
-                    // Recupération données fichier
-                    if (global.storage === 'database') {
-                        result.data = file.data;
-                        res.json(success(result));
-                    } else {
-                        if (!fs.existsSync(file.data)) {
-                            res.json(error(ERR_FILE));
-                        }
-                        fs.readFile(file.data, (err, data) => {
-                            result.data = data.toString();
-                            res.json(success(result));
-                        });
-                    }
-                }
-            });
-        }]);
-
-        this.app.post('/save', [this.verbose, this.verifyAuth, (req, res) => {
-            if (req.body.file === undefined || req.body.data === undefined) {
-                res.json(error(ERR_REQUEST));
-                return;
-            }
-            let promise, filename;
-            // Si on sauvegarde les données dans des fichiers, generation du chemin
-            if (global.storage === 'file') {
-                let hash = Date.now() + '-' + req.body.user + '-' + req.params.file;
-                hash = crypto.createHash('md5').update(hash).digest('base64');
-                hash = hash.replace(/=/g, '').replace(/\//g, '');
-                filename = './data/' + hash + '.fdata';
-                promise = db.addFile(req.body.user, req.body.file, filename);
-            }
-            // Sinon om met directement en base
-            else {
-                promise = db.addFile(req.body.user, req.body.file, req.body.data);
-            }
-            if (promise === false) {
-                res.json(error(ERR_REQUEST));
-                return;
-            }
-            promise.then((fileId) => {
-                if (fileId === false) {
-                    res.json(ERR_SERV);
+                } else if (!fs.existsSync(file.data)) {
+                    res.json(error(ERR_FILE));
                 } else {
-                    // Si en mode fichier stockage dans un fichier
-                    if ((global.storage === 'file')) {
-                        fs.writeFile(filename, req.body.data, (err) => {
-                            if (err) {
-                                if (global.verbose) {
-                                    console.error(err);
-                                }
-                                res.json(error(ERR_SERV));
-                            } else {
-                                res.json(success({fileId: fileId, fileName: req.body.file}));
+                    fs.writeFile(file.data, req.body.data, (err) => {
+                        if (err) {
+                            if (global.verbose) {
+                                console.error(err);
                             }
-                        });
-                    }
-                    // Le fichier est directement sauvegarder en base
-                    else {
-                        res.json(success({fileId: fileId, fileName: req.body.file}));
-                    }
+                            res.json(error(ERR_SERV));
+                        } else {
+                            res.json(success({fileId: req.params.file}));
+                        }
+                    });
                 }
             });
-        }]);
-
-        this.app.put('/save/:file', [this.verbose, this.verifyAuth, (req, res) => {
-            if (req.body.data === undefined || req.params.file === undefined) {
-                res.json(error(ERR_REQUEST));
+        }
+        // Sinon on modifie la base
+        else {
+            let result = db.updateFile(req.body.user, req.params.file, req.body.data);
+            if (result === false) {
+                res.json(error(ERR_SERV));
                 return;
             }
-            // Si les données sont dans un fichier
-            if (global.storage === 'file') {
-                let promise = db.getFile(req.body.user, req.params.file);
-                if (promise === false) {
-                    res.json(error(ERR_SERV));
-                    return;
-                }
-                promise.then((file) => {
-                    if (file === false) {
-                        res.json(error(ERR_FILE));
-                    } else if (!fs.existsSync(file.data)) {
-                        res.json(error(ERR_FILE));
-                    } else {
-                        fs.writeFile(file.data, req.body.data, (err) => {
-                            if (err) {
-                                if (global.verbose) {
-                                    console.error(err);
-                                }
-                                res.json(error(ERR_SERV));
-                            } else {
-                                res.json(success({fileId: req.params.file}));
-                            }
-                        });
-                    }
-                });
-            }
-            // Sinon on modifie la base
-            else {
-                let result = db.updateFile(req.body.user, req.params.file, req.body.data);
-                if (result === false) {
-                    res.json(error(ERR_SERV));
-                    return;
-                }
-                res.json(success({fileId: req.params.file}));
-            }
-        }]);
+            res.json(success({fileId: req.params.file}));
+        }
+    }
 
-        this.app.put('/rename/:file', [this.verbose, this.verifyAuth, (req, res) => {
+    renameFile(req, res) {
 
-        }]);
+    }
 
-        this.app.delete('/:file', [this.verbose, this.verifyAuth, (req, res) => {
-
-        }]);
+    deleteFile(req, res) {
 
     }
 
