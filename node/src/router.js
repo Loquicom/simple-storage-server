@@ -322,7 +322,22 @@ const router = class Router {
     }
 
     renameFile(req, res) {
-
+        if (req.body.name === undefined || req.params.file === undefined) {
+            res.json(error(ERR_REQUEST));
+            return;
+        }
+        let promise = db.renameFile(req.body.user, req.params.file, req.body.name);
+        if (promise === false) {
+            res.json(error(ERR_REQUEST));
+            return;
+        }
+        promise.then((result) => {
+            if (result) {
+                res.json(success({fileId: req.params.file, filename: req.body.name}));
+            } else {
+                res.json(error(ERR_UNKNOW));
+            }
+        });
     }
 
     deleteFile(req, res) {

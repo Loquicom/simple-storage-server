@@ -200,6 +200,26 @@ Db.prototype.updateFile = function (username, fileId, data) {
     return true;
 };
 
+Db.prototype.renameFile = function (username, fileId, name) {
+    if (typeof username !== 'string' || typeof fileId !== 'string' || typeof name !== 'string') {
+        return false;
+    }
+    // Met à jour le nom du fichier
+    return new Promise((resolve, reject) => {
+        this.fileExist(username, fileId).then((result) => {
+            if (result) {
+                this._execute(sql.renameFile, [name, fileId]);
+                resolve(true);
+            } else {
+                if (gobal.verbose) {
+                    console.info(`File ${fileId} for user ${username} not found`);
+                }
+                resolve(false);
+            }
+        });
+    });
+};
+
 Db.prototype._execute = function (sql, params) {
     try {
         if (params !== undefined && params !== null) {

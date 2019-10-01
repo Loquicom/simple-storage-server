@@ -65,3 +65,6 @@ module.exports.updateFile = 'UPDATE FILE SET fi_data = ? WHERE fi_hash = ?;';
 
 // Recupère le derniere id ajouté
 module.exports.lastId = 'SELECT last_insert_rowid() as lastId;';
+
+// Modifie le nom du fichier
+module.exports.renameFile = 'UPDATE FILE SET fi_name = lower(?) WHERE fi_hash = ?';
