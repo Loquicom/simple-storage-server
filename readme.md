@@ -24,6 +24,7 @@ Les codes d'erreurs sont les suivants :
 - 04 : Jeton invalide
 - 05 : Erreur serveur
 - 06 : Fichier introuvable
+- 07 : Utilisateur existant
 
 ## Points d'éntrées 
 

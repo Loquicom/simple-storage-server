@@ -75,12 +75,16 @@ Db.prototype.addUser = function (username, passwordhash) {
     if (typeof username !== 'string' && typeof passwordhash !== 'string') {
         return false;
     }
-    this.userExist(username).then((result) => {
-        if (!result) {
-            this._execute(sql.insertUser, [username, passwordhash]);
-        }
+    return new Promise((resolve, resject) => {
+        this.userExist(username).then((result) => {
+            if (!result) {
+                this._execute(sql.insertUser, [username, passwordhash]);
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        });
     });
-    return true;
 };
 
 Db.prototype.listFile = function (username) {
