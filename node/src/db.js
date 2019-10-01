@@ -172,9 +172,6 @@ Db.prototype.addFile = function (username, filename, data) {
                 // Recupération de l'utilisateur
                 this.getUser(username).then((user) => {
                     if (user === false) {
-                        if (global.verbose) {
-                            console.error(err);
-                        }
                         resolve(false);
                     } else {
                         // Ajoute le lien entre utilisateur et fichier
