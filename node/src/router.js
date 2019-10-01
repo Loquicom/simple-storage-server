@@ -351,7 +351,7 @@ const router = class Router {
             res.json(error(ERR_REQUEST));
             return;
         }
-        let promise = db.deleteFile(req.params.user, req.params.file);
+        let promise = db.deleteFile(req.body.user, req.params.file);
         if (promise === false) {
             res.json(error(ERR_REQUEST));
             return;
