@@ -360,7 +360,6 @@ const router = class Router {
             if (result) {
                 res.json(success());
             } else {
-
                 res.json(error(ERR_FILE));
             }
         });
