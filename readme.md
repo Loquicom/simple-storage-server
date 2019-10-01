@@ -11,7 +11,7 @@ Lors de l'utilisation de l'api si la requete est invalide le retour est de la fo
 ```json
 {
     "success": false,
-    "code": number,
+    "code": "number",
     "message": "string"
 }
 ```
@@ -36,7 +36,7 @@ Reponse :
 ```json
 {
     "success": true,
-    "authentication": boolean
+    "authentication": "boolean"
 }
 ```
 
@@ -106,7 +106,7 @@ Reponse :
 ```json
 {
     "success": true,
-    "valid": boolean
+    "valid": "boolean"
 }
 ```
 
@@ -130,8 +130,8 @@ Reponse :
 ```json
 {
     "success": true,
-    "total": number,
-    "list": ["fileId1", "fileId2", ...]
+    "total": "number",
+    "list": ["fileId1", "fileId2", "..."]
 }
 ```
 
@@ -250,8 +250,8 @@ Le champ user correspond au nom de l'utilisateur
 Requete :
 ```json
 {
-    user: "string"
-    token: "string"
+    "user": "string",
+    "token": "string"
 }
 ```
 
