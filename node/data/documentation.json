@@ -46,6 +46,67 @@
             "value": "boolean"
           }
         ]
+      },
+      "/list": {
+        "desc": "list of user files",
+        "params": [
+          {
+            "key": "user",
+            "value": "string",
+            "desc": "name of the user"
+          },
+          {
+            "key": "token",
+            "value": "string"
+          }
+        ],
+        "return": [
+          {
+            "key": "success",
+            "value": true
+          },
+          {
+            "key": "total",
+            "value": "number"
+          },
+          {
+            "key": "list",
+            "value": "string array",
+            "desc": "array of fileId"
+          }
+        ]
+      },
+      "/{fileId}": {
+        "desc": "get a file",
+        "params": [
+          {
+            "key": "user",
+            "value": "string",
+            "desc": "name of the user"
+          },
+          {
+            "key": "token",
+            "value": "string"
+          }
+        ],
+        "return": [
+          {
+            "key": "success",
+            "value": true
+          },
+          {
+            "key": "fileId",
+            "value": "string"
+          },
+          {
+            "key": "filename",
+            "value": "string"
+          },
+          {
+            "key": "data",
+            "value": "string"
+          }
+        ]
       }
     },
     "POST": {
@@ -94,24 +155,148 @@
             "value": "string"
           }
         ]
+      },
+      "/save": {
+        "desc": "save a new file",
+        "params": [
+          {
+            "key": "user",
+            "value": "string",
+            "desc": "name of the user"
+          },
+          {
+            "key": "token",
+            "value": "string"
+          },
+          {
+            "key": "file",
+            "value": "string",
+            "desc": "name of the file"
+          },
+          {
+            "key": "data",
+            "value": "string",
+            "desc": "content of the file"
+          }
+        ],
+        "return": [
+          {
+            "key": "success",
+            "value": true
+          },
+          {
+            "key": "fileId",
+            "value": "string"
+          },
+          {
+            "key": "filename",
+            "value": "string"
+          }
+        ]
       }
     },
-    "Error": {
-      "desc": "Return when error occurs",
-      "returns": [
+    "PUT": {
+      "/save/{fileId}": {
+        "desc": "save an existing file",
+        "params": [
+          {
+            "key": "user",
+            "value": "string",
+            "desc": "name of the user"
+          },
+          {
+            "key": "token",
+            "value": "string"
+          },
+          {
+            "key": "data",
+            "value": "string",
+            "desc": "content of the file"
+          }
+        ],
+        "return": [
+          {
+            "key": "success",
+            "value": true
+          },
+          {
+            "key": "fileId",
+            "value": "string"
+          }
+        ]
+      }
+    },
+    "/rename/{fileId}": {
+      "desc": "rename an existing file",
+      "params": [
+        {
+          "key": "user",
+          "value": "string",
+          "desc": "name of the user"
+        },
+        {
+          "key": "token",
+          "value": "string"
+        },
+        {
+          "key": "name",
+          "value": "string",
+          "desc": "new name of the file"
+        }
+      ],
+      "return": [
         {
           "key": "success",
-          "value": false
+          "value": true
         },
         {
-          "key": "code",
-          "value": "int"
+          "key": "fileId",
+          "value": "string"
         },
         {
-          "key": "message",
+          "key": "filename",
           "value": "string"
         }
       ]
     }
+  },
+  "DELETE": {
+    "/{fileId}": {
+      "desc": "delete an existing file",
+      "params": [
+        {
+          "key": "user",
+          "value": "string",
+          "desc": "name of the user"
+        },
+        {
+          "key": "token",
+          "value": "string"
+        }
+      ],
+      "return": [
+        {
+          "key": "success",
+          "value": true
+        }
+      ]
+    }
+  },
+  "Error": {
+    "desc": "Return when error occurs",
+    "returns": [
+      {
+        "key": "success",
+        "value": false
+      },
+      {
+        "key": "code",
+        "value": "int"
+      },
+      {
+        "key": "message",
+        "value": "string"
+      }
+    ]
   }
 }
