@@ -3,6 +3,8 @@ const sqlite = require('sqlite3');
 const crypto = require('crypto');
 const sql = require('./sql');
 
+let instance = null;
+
 // Indique si un fichier existe
 function fileExist(path) {
     try {
@@ -284,4 +286,9 @@ Db.prototype._execute = function (sql, params) {
 };
 
 // Export
-module.exports = new Db();
+module.exports.getDb = function () {
+    if (instance === null) {
+        instance = new Db();
+    }
+    return instance;
+};

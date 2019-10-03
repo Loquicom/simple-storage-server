@@ -1,7 +1,7 @@
 const fs = require('fs');
 const crypto = require('crypto');
 const auth = require('./auth');
-const db = require('./db');
+const db = require('./db').getDb();
 const doc = require('../data/documentation.json');
 
 // Constante d'erreur
