@@ -5,7 +5,7 @@ const path = './config.json';
 
 // Verif que le fichier de config existe
 if (!fs.existsSync(path)) {
-    throw "Config file not found";
+    throw 'Config file not found';
 }
 
 // Lecture du fichier
@@ -25,6 +25,8 @@ if (config.storage === undefined) {
     throw 'highestPort undefined in the config file';
 } else if (config.https === undefined) {
     throw 'https undefined in the config file';
+} else if (config.validate === undefined) {
+    throw 'validate undefined in the config file';
 }
 
 //Verification valeur
@@ -40,6 +42,8 @@ if (config.storage !== 'database' && config.storage !== 'file') {
     throw 'Bad value for highestPort: number between 0 and 65535 and higher than or equal basePort expected';
 } else if (typeof config.https !== 'boolean') {
     throw 'Bad value for https: boolean expected';
+} else if (typeof config.validate !== 'boolean') {
+    throw 'Bad value for validate: boolean expected';
 }
 
 module.exports = config;
