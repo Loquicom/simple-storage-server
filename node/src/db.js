@@ -27,7 +27,7 @@ function Db() {
     }
 }
 
-Db.prototype.DB_PATH = './data/loquicompta.db';
+Db.prototype.DB_PATH = './data/sss.db';
 
 Db.prototype.createDb = function () {
     this._execute(sql.createUserTable);
@@ -260,6 +260,12 @@ Db.prototype.countFile = function () {
             }
         });
     });
+};
+
+Db.prototype.resetDatabase = function () {
+    this._execute(sql.deleteUserFile);
+    this._execute(sql.deleteFile);
+    this._execute(sql.deleteUser);
 };
 
 Db.prototype._execute = function (sql, params) {
