@@ -1,4 +1,5 @@
 const fs = require('fs');
+const inquirer = require('inquirer');
 const db = require('./db');
 
 let converter;
@@ -13,7 +14,14 @@ class Validate {
     constructor(config) {
         this.config = config;
         this.valid = undefined;
-        this.haveConverter = converter !== undefined;
+    }
+
+    isValid() {
+        return this.valid;
+    }
+
+    haveConverter() {
+        return converter !== undefined;
     }
 
     /**
@@ -54,6 +62,65 @@ class Validate {
                 }
             });
         }));
+    }
+
+    rectify() {
+        if (this.valid === undefined) {
+            return false;
+        } else if (this.valid) {
+            return true;
+        }
+        console.info('The method of storage in the configuration file is different from the storage method used');
+        return new Promise((resolve, reject) => {
+            if (this.haveConverter()) {
+                inquirer.prompt({
+                    type: 'confirm',
+                    name: 'convertData',
+                    message: 'Do you want to convert the data into the method of storage of the configuration file [default=yes] ?',
+                    default: true
+                }).then((answer) => {
+                    if (answer.convertData) {
+                        // Db vers fichier
+                        if (this.config.storage === 'file') {
+                            converter.convertDatabaseToFile();
+                        }
+                        // Fichier vers Db
+                        else {
+                            converter.convertFileToDatabase();
+                        }
+                    } else {
+                        this.deletePrompt(resolve);
+                    }
+                });
+            } else {
+                this.deletePrompt(resolve);
+            }
+        });
+    }
+
+    deletePrompt(resolve) {
+        inquirer.prompt({
+            type: 'confirm',
+            name: 'deleteData',
+            message: 'Do you want to delete the data to switch to the new storage method [default=no] ?',
+            default: false
+        }).then((answer) => {
+            if (answer.deleteData) {
+                // Reset de la bdd
+                db.resetDatabase();
+                // Suppr fichier fdata
+                const dir = './data/';
+                fs.readdirSync(dir).forEach(file => {
+                    const split = file.split('.');
+                    if (split[split.length - 1] === 'fdata') {
+                        fs.unlinkSync(dir + file);
+                    }
+                });
+                // Message de fin
+                console.info('Delete complete');
+            }
+            resolve(answer.deleteData);
+        });
     }
 
 }
