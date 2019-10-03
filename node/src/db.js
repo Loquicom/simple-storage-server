@@ -3,6 +3,8 @@ const sqlite = require('sqlite3');
 const crypto = require('crypto');
 const sql = require('./sql');
 
+const DB_PATH = './data/sss.db';
+
 let instance = null;
 
 // Indique si un fichier existe
@@ -21,15 +23,13 @@ function Db() {
         sqlite.verbose();
     }
     // Connection à la base
-    const exist = fileExist(this.DB_PATH);
-    this.db = new sqlite.Database(this.DB_PATH);
+    const exist = fileExist(DB_PATH);
+    this.db = new sqlite.Database(DB_PATH);
     // Création si besoins de la base
     if (!exist) {
         this.createDb();
     }
 }
-
-Db.prototype.DB_PATH = './data/sss.db';
 
 Db.prototype.createDb = function () {
     this._execute(sql.createUserTable);
@@ -291,4 +291,8 @@ module.exports.getDb = function () {
         instance = new Db();
     }
     return instance;
+};
+
+module.exports.getPath = function () {
+    return DB_PATH;
 };

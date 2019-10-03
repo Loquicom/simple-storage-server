@@ -8,7 +8,7 @@ process.on('SIGINT', function () {
 
 // 1er Lancement
 const fs = require('fs');
-const first = !fs.existsSync(require('./src/db').getDb().DB_PATH);
+const first = !fs.existsSync(require('./src/db').getPath());
 
 // Chargement fichier config
 const config = require('./src/config');
