@@ -1,6 +1,6 @@
 const fs = require('fs');
 const inquirer = require('inquirer');
-const db = require('./db');
+const db = require('./db').getDb();
 
 let converter;
 if (fs.existsSync('./src/convert/')) {
