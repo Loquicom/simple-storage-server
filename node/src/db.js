@@ -247,6 +247,21 @@ Db.prototype.deleteFile = function (username, fileId) {
     });
 };
 
+Db.prototype.countFile = function () {
+    return new Promise((resolve, reject) => {
+        this.db.all(sql.countFile, (err, rows) => {
+            if (err) {
+                if (global.verbose) {
+                    console.error(err);
+                }
+                resolve(false);
+            } else {
+                resolve(rows[0].nb);
+            }
+        });
+    });
+};
+
 Db.prototype._execute = function (sql, params) {
     try {
         if (params !== undefined && params !== null) {

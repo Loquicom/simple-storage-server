@@ -2,7 +2,7 @@
 
 // Gestion du signal d'arret (SIGINT = Ctrl+C)
 process.on('SIGINT', function () {
-    console.info("\nStopping the server");
+    console.info('\nStopping the server');
     process.exit();
 });
 
@@ -47,6 +47,9 @@ if (!config.auth) {
 global.storage = config.storage;
 global.verbose = argv.verbose >= 1;
 global.sqlVerbose = argv.sql >= 1;
+
+// Validation stockage fichier
+const validator = require('./src/validate')(config);
 
 // Lancement du serveur
 const server = require('./src/server');

@@ -72,3 +72,5 @@ module.exports.renameFile = 'UPDATE FILE SET fi_name = lower(?) WHERE fi_hash = 
 module.exports.deleteUserFile = 'DELETE FROM USERFILE WHERE fi_id = ?';
 
 module.exports.deleteFile = 'DELETE FROM FILE WHERE fi_id = ?';
+
+module.exports.countFile = 'SELECT count(*) as nb FROM FILE f ';
