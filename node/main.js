@@ -6,6 +6,10 @@ process.on('SIGINT', function () {
     process.exit();
 });
 
+// 1er Lancement
+const fs = require('fs');
+const first = !fs.existsSync('./data/sss.db');
+
 // Chargement fichier config
 const config = require('./src/config');
 const protocol = (config.https) ? 'https' : 'http';
@@ -48,32 +52,67 @@ global.storage = config.storage;
 global.verbose = argv.verbose >= 1;
 global.sqlVerbose = argv.sql >= 1;
 
-// Validation stockage fichier
-const validator = require('./src/validate').getValidator(config);
+// Validation des fichiers si active
+if (config.validate && !first) {
+    validate(startServer);
+}
+// Sinon demarrage du serveur
+else {
+    startServer();
+}
 
-// Lancement du serveur
-const server = require('./src/server');
-server.https = config.https;
-server.route(require('./src/router'));
-server.start(argv.port).then((port) => {
-    console.info(`Server starting on port ${port} (${protocol}://localhost:${port})`);
-}).catch((err) => {
-    // Si erreur port deja utilisé et option recherche de port ouvert activée
-    if (err.toString().includes('Error: No open ports') && config.findPort) {
-        console.info(`Port ${argv.port} not available, search for a new available port`);
-        server.start(config.basePort, config.highestPort).then((port) => {
-            console.info(`New available port found: ${port}`);
-            console.info(`Server starting on port ${port} (${protocol}://localhost:${port})`);
-        }).catch((err) => {
+/**
+ * Validate the storage method
+ */
+function validate(callback) {
+    const validator = require('./src/validate').getValidator(config);
+    validator.check().then((result) => {
+        // Pas de probleme
+        if (result) {
+            callback();
+        }
+        // Tentative de resolution des problemes
+        else {
+            validator.rectify().then((success) => {
+                if (success) {
+                    console.info();
+                    callback();
+                } else {
+                    console.info('Unable to start the server in this state, end of execution');
+                    process.exit();
+                }
+            });
+        }
+    });
+}
+
+/**
+ * Start the server
+ */
+function startServer() {
+    const server = require('./src/server');
+    server.https = config.https;
+    server.route(require('./src/router'));
+    server.start(argv.port).then((port) => {
+        console.info(`Server starting on port ${port} (${protocol}://localhost:${port})`);
+    }).catch((err) => {
+        // Si erreur port deja utilisé et option recherche de port ouvert activée
+        if (err.toString().includes('Error: No open ports') && config.findPort) {
+            console.info(`Port ${argv.port} not available, search for a new available port`);
+            server.start(config.basePort, config.highestPort).then((port) => {
+                console.info(`New available port found: ${port}`);
+                console.info(`Server starting on port ${port} (${protocol}://localhost:${port})`);
+            }).catch((err) => {
+                console.error(err.toString());
+                console.info('Unable to start the server, end of execution');
+                process.exit();
+            });
+        }
+        // Sinon erreur
+        else {
             console.error(err.toString());
             console.info('Unable to start the server, end of execution');
             process.exit();
-        });
-    }
-    // Sinon erreur
-    else {
-        console.error(err.toString());
-        console.info('Unable to start the server, end of execution');
-        process.exit();
-    }
-});
+        }
+    });
+}
