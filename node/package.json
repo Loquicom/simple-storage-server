@@ -25,8 +25,9 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "express": "^4.17.1",
+    "inquirer": "^7.0.0",
+    "portfinder": "^1.0.24",
     "sqlite3": "^4.0.9",
-    "yargs": "^13.3.0",
-    "portfinder": "^1.0.24"
+    "yargs": "^13.3.0"
   }
 }
