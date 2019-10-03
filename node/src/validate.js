@@ -4,7 +4,7 @@ const db = require('./db');
 
 let converter;
 if (fs.existsSync('./src/convert/')) {
-    converter = require('./src/convert/');
+    converter = require('./convert');
 }
 
 let validator = null;
