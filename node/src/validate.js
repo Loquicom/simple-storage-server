@@ -58,7 +58,7 @@ class Validate {
 
 }
 
-module.exports = function (config) {
+module.exports.getValidator = function (config) {
     if (validator === null) {
         validator = new Validate(config);
     }
