@@ -74,3 +74,7 @@ module.exports.deleteUserFile = 'DELETE FROM USERFILE WHERE fi_id = ?';
 module.exports.deleteFile = 'DELETE FROM FILE WHERE fi_id = ?';
 
 module.exports.countFile = 'SELECT count(*) as nb FROM FILE f ';
+
+module.exports.drop = 'DROP TABLE USERFILE;'
+    + 'DROP TABLE FILE;'
+    + 'DROP TABLE USER;';
