@@ -1,6 +1,6 @@
 const fs = require('fs');
 const inquirer = require('inquirer');
-const db = require('./db').getDb();
+const db = require('./db').getInstance();
 
 let converter;
 if (fs.existsSync('./src/convert/')) {
@@ -82,11 +82,11 @@ class Validate {
                     if (answer.convertData) {
                         // Db vers fichier
                         if (this.config.storage === 'file') {
-                            converter.convertDatabaseToFile();
+                            converter.convertDatabaseToFile(resolve);
                         }
                         // Fichier vers Db
                         else {
-                            converter.convertFileToDatabase();
+                            converter.convertFileToDatabase(resolve);
                         }
                     } else {
                         this.deletePrompt(resolve);

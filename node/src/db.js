@@ -31,6 +31,10 @@ function Db() {
     }
 }
 
+Db.prototype.getDb = function () {
+    return this.db;
+};
+
 Db.prototype.createDb = function () {
     this._execute(sql.createUserTable);
     this._execute(sql.createFileTable);
@@ -286,11 +290,15 @@ Db.prototype._execute = function (sql, params) {
 };
 
 // Export
-module.exports.getDb = function () {
+module.exports.getInstance = function () {
     if (instance === null) {
         instance = new Db();
     }
     return instance;
+};
+
+module.exports.getDb = function () {
+    return module.exports.getInstance().getDb();
 };
 
 module.exports.getPath = function () {
